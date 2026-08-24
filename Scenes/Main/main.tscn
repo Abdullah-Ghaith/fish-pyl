@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b8v124xnyrq4p"]
+
+[ext_resource type="Script" uid="uid://bfv671fcq23be" path="res://Scenes/Main/main.gd" id="1_lixft"]
+[ext_resource type="PackedScene" uid="uid://cb0ahvxal1w7i" path="res://Objects/Environment/Water/WaterBody/water_body.tscn" id="2_qw60k"]
+
+[node name="Main" type="Node2D" unique_id=1542807437]
+script = ExtResource("1_lixft")
+
+[node name="WaterBody" parent="." unique_id=1644343967 instance=ExtResource("2_qw60k")]
+position = Vector2(891, 740)
+distance_between_springs = 8.0
+num_springs = 140

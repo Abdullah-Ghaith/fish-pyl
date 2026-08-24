@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://cb0ahvxal1w7i"]
+
+[ext_resource type="Script" uid="uid://bcuabx8ccm0ek" path="res://Objects/Environment/Water/WaterBody/water_body.gd" id="1_pwk5p"]
+[ext_resource type="Shader" uid="uid://yu5la3yngmlp" path="res://Objects/Environment/Water/WaterBody/water_body.gdshader" id="2_pwk5p"]
+[ext_resource type="Script" uid="uid://co6yykh77qcgh" path="res://addons/smooth_path_modified/smooth_path_modified.gd" id="3_yh4u0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yh4u0"]
+shader = ExtResource("2_pwk5p")
+shader_parameter/tint = Color(0.11764706, 1, 1, 1)
+
+[sub_resource type="Curve2D" id="Curve2D_7xs7t"]
+
+[node name="WaterBody" type="Node2D" unique_id=1644343967]
+script = ExtResource("1_pwk5p")
+k = 0.01
+d = 0.06
+spread = 0.001
+border_thickness = 3.0
+
+[node name="WaterPolygon" type="Polygon2D" parent="." unique_id=1178956956]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_yh4u0")
+color = Color(0.17070201, 0.64204913, 0.8488099, 0.6862745)
+
+[node name="WaterBorder" type="Path2D" parent="." unique_id=754995802]
+curve = SubResource("Curve2D_7xs7t")
+script = ExtResource("3_yh4u0")
+spline_length = 2.0
+metadata/_custom_type_script = "uid://co6yykh77qcgh"
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1611711690]
+collision_mask = 2

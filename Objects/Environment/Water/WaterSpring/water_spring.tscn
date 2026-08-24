@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://dyocq22qpgc0x"]
+
+[ext_resource type="Texture2D" uid="uid://dm8dpf8w5vebl" path="res://Assets/Sprites/joint.png" id="1_0828v"]
+[ext_resource type="Script" uid="uid://b8874il8mg4yh" path="res://Objects/Environment/Water/WaterSpring/water_spring.gd" id="1_dkpmn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dkpmn"]
+size = Vector2(21, 6)
+
+[node name="Water_Spring" type="Node2D" unique_id=2056230089]
+script = ExtResource("1_dkpmn")
+motion_factor = 0.009
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=785884727]
+visible = false
+texture = ExtResource("1_0828v")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1438364156]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=113595572]
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_dkpmn")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
