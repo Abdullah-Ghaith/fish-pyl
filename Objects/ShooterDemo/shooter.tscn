@@ -3,6 +3,11 @@
 [ext_resource type="Script" uid="uid://ddsopxnbayli7" path="res://Objects/ShooterDemo/shooter.gd" id="1_mvxqb"]
 [ext_resource type="Texture2D" uid="uid://blosenib0ldyp" path="res://Assets/Sprites/towerDefense_tile249.png" id="2_2g8pt"]
 [ext_resource type="PackedScene" uid="uid://0toku8yjv6q5" path="res://Objects/Hook/trajectory_line.tscn" id="3_2g8pt"]
+[ext_resource type="Shader" uid="uid://j2fqmvhjgfn5" path="res://Objects/ShooterDemo/s_moving_trajectory.gdshader" id="4_g40wn"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aie3p"]
+shader = ExtResource("4_g40wn")
+shader_parameter/speed = 1.0
 
 [node name="Shooter" type="CharacterBody2D" unique_id=1000161174]
 script = ExtResource("1_mvxqb")
@@ -11,5 +16,6 @@ script = ExtResource("1_mvxqb")
 texture = ExtResource("2_2g8pt")
 
 [node name="TrajectoryLine" parent="." unique_id=1199459380 instance=ExtResource("3_2g8pt")]
+material = SubResource("ShaderMaterial_aie3p")
 
 [node name="ShootPos" type="Marker2D" parent="." unique_id=962666944]
