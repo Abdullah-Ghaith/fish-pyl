@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://0toku8yjv6q5"]
+
+[ext_resource type="Script" uid="uid://mnpxyiber3an" path="res://Objects/Hook/trajectory_line.gd" id="1_827ki"]
+[ext_resource type="Texture2D" uid="uid://n4s48jrxmjhg" path="res://Assets/Sprites/dotted_line.png" id="1_kmbqa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f1bgc"]
+size = Vector2(56, 42)
+
+[node name="TrajectoryLine" type="Line2D" unique_id=1199459380]
+texture_filter = 1
+texture_repeat = 2
+texture = ExtResource("1_kmbqa")
+texture_mode = 1
+script = ExtResource("1_827ki")
+
+[node name="CollisionTest" type="CharacterBody2D" parent="." unique_id=1209792465]
+collision_layer = 0
+collision_mask = 2
+
+[node name="HookCollisionShape" type="CollisionShape2D" parent="CollisionTest" unique_id=901518497]
+position = Vector2(0, 11)
+shape = SubResource("RectangleShape2D_f1bgc")
