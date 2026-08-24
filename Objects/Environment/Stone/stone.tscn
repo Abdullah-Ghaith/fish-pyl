@@ -6,7 +6,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_th1ff"]
 
 [node name="Stone" type="RigidBody2D" unique_id=1354342674]
-collision_layer = 2
+collision_layer = 8
 collision_mask = 0
 script = ExtResource("1_gtk3x")
 

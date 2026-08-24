@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bcuabx8ccm0ek" path="res://Objects/Environment/Water/WaterBody/water_body.gd" id="1_pwk5p"]
 [ext_resource type="Shader" uid="uid://yu5la3yngmlp" path="res://Objects/Environment/Water/WaterBody/water_body.gdshader" id="2_pwk5p"]
 [ext_resource type="Script" uid="uid://co6yykh77qcgh" path="res://addons/smooth_path_modified/smooth_path_modified.gd" id="3_yh4u0"]
+[ext_resource type="PackedScene" uid="uid://dyocq22qpgc0x" path="res://Objects/Environment/Water/WaterSpring/water_spring.tscn" id="4_7xs7t"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_yh4u0"]
 shader = ExtResource("2_pwk5p")
@@ -29,4 +30,7 @@ spline_length = 2.0
 metadata/_custom_type_script = "uid://co6yykh77qcgh"
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1611711690]
-collision_mask = 2
+collision_layer = 2
+collision_mask = 8
+
+[node name="Water_Spring" parent="Area2D" unique_id=2056230089 instance=ExtResource("4_7xs7t")]
