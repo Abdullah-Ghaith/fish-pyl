@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://bb0766qo3lb5c"]
+
+[ext_resource type="Texture2D" uid="uid://c5qqp432jm77u" path="res://Assets/kenney_pico-8-platformer/Transparent/Tilemap/tilemap_packed.png" id="1_156m4"]
+[ext_resource type="Script" uid="uid://b1t6jqud3dgp3" path="res://Objects/Player/player.gd" id="1_yw17q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yw17q"]
+atlas = ExtResource("1_156m4")
+region = Rect2(0, 56, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l2ya6"]
+atlas = ExtResource("1_156m4")
+region = Rect2(8, 56, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o1rty"]
+atlas = ExtResource("1_156m4")
+region = Rect2(8, 56, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t45n6"]
+atlas = ExtResource("1_156m4")
+region = Rect2(16, 56, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u7612"]
+atlas = ExtResource("1_156m4")
+region = Rect2(24, 56, 8, 8)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bpp7x"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yw17q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l2ya6")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o1rty")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t45n6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u7612")
+}],
+"loop": true,
+"name": &"run",
+"speed": 9.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l2ya6"]
+size = Vector2(8, 7)
+
+[node name="Player" type="CharacterBody2D" unique_id=1812962135]
+collision_mask = 2
+script = ExtResource("1_yw17q")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=279364650]
+sprite_frames = SubResource("SpriteFrames_bpp7x")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1816899909]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_l2ya6")
