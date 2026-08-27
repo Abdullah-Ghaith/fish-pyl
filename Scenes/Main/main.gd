@@ -1,6 +1,6 @@
 extends Node2D
 
-#loads the stone scene
+#TODO: consider having this be a mechanic?
 const STONE = preload("uid://c3i2cxaqk3n1j")
 
 #called when there's an input

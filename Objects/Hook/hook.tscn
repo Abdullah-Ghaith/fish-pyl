@@ -1,20 +1,21 @@
 [gd_scene format=3 uid="uid://cljk7124xqvw3"]
 
 [ext_resource type="Script" uid="uid://c6tvmplr252lx" path="res://Objects/Hook/hook.gd" id="1_8clvq"]
-[ext_resource type="Texture2D" uid="uid://do3miwq3n5e8k" path="res://Assets/kenney_fish-pack_2/Vector/rock_a_outline.svg" id="1_db8wt"]
+[ext_resource type="Texture2D" uid="uid://cbo6xn5ktr1xj" path="res://Assets/Sprites/Hook.png" id="2_8clvq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8clvq"]
-size = Vector2(56, 42)
+size = Vector2(5, 8)
 
 [node name="Hook" type="CharacterBody2D" unique_id=252194770]
+scale = Vector2(3, 3)
 collision_layer = 8
 collision_mask = 2
 script = ExtResource("1_8clvq")
 speed = 400.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=211465012]
-texture = ExtResource("1_db8wt")
+texture = ExtResource("2_8clvq")
 
 [node name="HookCollisionShape" type="CollisionShape2D" parent="." unique_id=1426422230]
-position = Vector2(0, 11)
+position = Vector2(0.5, 0)
 shape = SubResource("RectangleShape2D_8clvq")

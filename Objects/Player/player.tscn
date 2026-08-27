@@ -2,6 +2,8 @@
 
 [ext_resource type="Texture2D" uid="uid://c5qqp432jm77u" path="res://Assets/kenney_pico-8-platformer/Transparent/Tilemap/tilemap_packed.png" id="1_156m4"]
 [ext_resource type="Script" uid="uid://b1t6jqud3dgp3" path="res://Objects/Player/player.gd" id="1_yw17q"]
+[ext_resource type="PackedScene" uid="uid://cdywyoyr2buh" path="res://Objects/ShooterDemo/shooter.tscn" id="3_l2ya6"]
+[ext_resource type="Script" uid="uid://cgoa5sq0iwxxu" path="res://Util/StateMachine/StateMachine.gd" id="4_t45n6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yw17q"]
 atlas = ExtResource("1_156m4")
@@ -52,17 +54,27 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l2ya6"]
-size = Vector2(8, 7)
+size = Vector2(38, 35)
 
 [node name="Player" type="CharacterBody2D" unique_id=1812962135]
 collision_mask = 2
 script = ExtResource("1_yw17q")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=279364650]
+scale = Vector2(5, 5)
 sprite_frames = SubResource("SpriteFrames_bpp7x")
 animation = &"idle"
 autoplay = "idle"
+frame = 1
+frame_progress = 0.5514973
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1816899909]
-position = Vector2(0, 0.5)
+position = Vector2(-1, 2.5)
 shape = SubResource("RectangleShape2D_l2ya6")
+
+[node name="FishingRod" parent="." unique_id=1000161174 instance=ExtResource("3_l2ya6")]
+position = Vector2(34, -2)
+
+[node name="StateMachine" type="Node" parent="." unique_id=1730372483]
+script = ExtResource("4_t45n6")
+metadata/_custom_type_script = "uid://cgoa5sq0iwxxu"

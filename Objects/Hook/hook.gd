@@ -3,7 +3,7 @@ class_name Hook extends CharacterBody2D
 ## comes home. The fishing line only listens to the signals below; it never
 ## drives the hook.
 
-enum State { FLIGHT, SUBMERGED, RISING, REELING }
+enum HookState { FLIGHT, SUBMERGED, RISING, REELING }
 
 @export_group("Cast")
 @export var speed: float = 1200.0
@@ -55,7 +55,7 @@ signal returned
 ## Where to reel back to. Set by whoever casts the hook.
 var rod_tip: Node2D = null
 var dir: Vector2 = Vector2.ZERO
-var state: State = State.FLIGHT
+var state: HookState = HookState.FLIGHT
 ## Counts down while submerged - read it for a HUD bar.
 var dive_remaining: float = 0.0
 
@@ -76,15 +76,15 @@ func _exit_tree() -> void:
 
 func _physics_process(delta: float) -> void:
 	match state:
-		State.FLIGHT:
+		HookState.FLIGHT:
 			_fly(delta)
-		State.SUBMERGED:
+		HookState.SUBMERGED:
 			_swim(delta)
-		State.RISING:
+		HookState.RISING:
 			if _travel_to(_entry_point, rise_speed, delta):
-				state = State.REELING
+				state = HookState.REELING
 				_return_speed = 0.0
-		State.REELING:
+		HookState.REELING:
 			var home: Vector2 = _entry_point
 			if is_instance_valid(rod_tip):
 				home = rod_tip.global_position
@@ -125,7 +125,7 @@ func _swim(delta: float) -> void:
 
 
 func _begin_return() -> void:
-	state = State.RISING
+	state = HookState.RISING
 	steering = false
 	_return_speed = 0.0
 	started_returning.emit()
@@ -143,11 +143,11 @@ func _travel_to(target: Vector2, speed_limit: float, delta: float) -> bool:
 
 
 func _on_entered_water(surface_y: float) -> void:
-	if state != State.FLIGHT:
+	if state != HookState.FLIGHT:
 		return
 	_surface_y = surface_y if is_finite(surface_y) else global_position.y
 	_entry_point = Vector2(global_position.x, _surface_y)
 	velocity *= splash_slowdown
 	dive_remaining = dive_time
-	state = State.SUBMERGED
+	state = HookState.SUBMERGED
 	steering = true

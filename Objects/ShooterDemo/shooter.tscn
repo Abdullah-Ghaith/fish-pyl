@@ -1,27 +1,101 @@
 [gd_scene format=3 uid="uid://cdywyoyr2buh"]
 
 [ext_resource type="Script" uid="uid://ddsopxnbayli7" path="res://Objects/ShooterDemo/shooter.gd" id="1_mvxqb"]
-[ext_resource type="Texture2D" uid="uid://blosenib0ldyp" path="res://Assets/Sprites/towerDefense_tile249.png" id="2_2g8pt"]
 [ext_resource type="PackedScene" uid="uid://0toku8yjv6q5" path="res://Objects/Hook/trajectory_line.tscn" id="3_2g8pt"]
 [ext_resource type="Shader" uid="uid://j2fqmvhjgfn5" path="res://Objects/ShooterDemo/s_moving_trajectory.gdshader" id="4_g40wn"]
 [ext_resource type="PackedScene" uid="uid://c1cc3tjanep5n" path="res://Objects/FishingLine/fishing_line.tscn" id="5_aie3p"]
+[ext_resource type="Texture2D" uid="uid://crqfetgfypgbs" path="res://Assets/Sprites/FishingRod-Sheet.png" id="5_kqb2w"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aie3p"]
 shader = ExtResource("4_g40wn")
 shader_parameter/speed = 1.0
 
-[node name="Shooter" type="CharacterBody2D" unique_id=1000161174]
+[sub_resource type="AtlasTexture" id="AtlasTexture_4noxc"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(224, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1gudg"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yef8b"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8yhjd"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ikw66"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7hsn6"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uk6sm"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8380g"]
+atlas = ExtResource("5_kqb2w")
+region = Rect2(192, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vrhbb"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4noxc")
+}],
+"loop": true,
+"name": &"Fishing",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1gudg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yef8b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8yhjd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ikw66")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7hsn6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uk6sm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8380g")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 10.0
+}]
+
+[node name="FishingRod" type="CharacterBody2D" unique_id=1000161174]
 script = ExtResource("1_mvxqb")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=909651943]
-texture = ExtResource("2_2g8pt")
-
 [node name="ShootPos" type="Marker2D" parent="." unique_id=430676763]
-position = Vector2(44, -3)
+position = Vector2(19, -9)
 
 [node name="TrajectoryLine" parent="." unique_id=1199459380 instance=ExtResource("3_2g8pt")]
 material = SubResource("ShaderMaterial_aie3p")
-position = Vector2(27, 0)
+position = Vector2(7, -6)
+points = PackedVector2Array(37, 1)
 
 [node name="FishingLine" parent="." unique_id=1047603809 node_paths=PackedStringArray("rod_tip") instance=ExtResource("5_aie3p")]
 rod_tip = NodePath("../ShootPos")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2121575210]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_vrhbb")
+animation = &"Idle"
+autoplay = "Idle"
+frame_progress = 0.7244638

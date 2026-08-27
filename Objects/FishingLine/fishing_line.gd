@@ -32,7 +32,7 @@ class_name FishingLine extends Node2D
 ##        started_returning -> begin_return
 ##   4. On reel-in / catch / despawn:  fishing_line.detach_hook()
 
-enum State { IDLE, FLIGHT, SUNK, RETURN }
+enum FishingLineState { IDLE, FLIGHT, SUNK, RETURN }
 
 @export_group("Nodes")
 @export var line: Line2D
@@ -80,16 +80,30 @@ enum State { IDLE, FLIGHT, SUNK, RETURN }
 @export var water_reel_speed: float = 60.0
 
 @export_group("Coming Home")
-## How fast the merged rope is reeled in (px/s) once the hook heads home.
+## How fast leftover slack is wound back onto the reel (px/s) once the hook heads
+## home. This is a rate on the *slack*, not on the rope's total length - see the
+## FishingLineState.RETURN branch for why that distinction is the whole ballgame.
 @export var reel_speed: float = 220.0
+## Rope length while being hauled in, as a multiple of the rod-tip -> hook
+## distance. 1.0 is a dead-straight line; a little over gives it some weight.
+@export var return_taut: float = 1.01
 
 @export_group("Solver")
 @export_range(1, 32) var iterations: int = 14
+## Successive over-relaxation. Each constraint overshoots by this factor, which
+## is what lets a length error travel the length of the rope in a handful of
+## iterations instead of a few hundred. Plain Gauss-Seidel (1.0) diffuses a
+## global error in O(n^2) iterations, so the ~39-point merged rope of the return
+## phase sat ~11% overstretched forever and bellied out behind the hook.
+##
+## More iterations barely help; this does. There is a hard stability cliff just
+## above 1.9 - at 1.95 the rope explodes - so do not raise it past the range.
+@export_range(1.0, 1.9) var relaxation: float = 1.8
 
-var state: State = State.IDLE
+var state: FishingLineState = FishingLineState.IDLE
 var hook: Node2D = null
 ## World position where the hook broke the surface. The air section's far end is
-## pinned here for good once we're in State.SUNK.
+## pinned here for good once we're in FishingLineState.SUNK.
 var entry_point: Vector2 = Vector2.ZERO
 var surface_y: float = 0.0
 
@@ -102,6 +116,9 @@ var _water: Array[Vector2] = []
 var _water_prev: Array[Vector2] = []
 var _water_len: float = 0.0
 
+## Rope length in hand beyond taut, during FishingLineState.RETURN. Monotonically decreasing.
+var _return_slack: float = 0.0
+
 
 func _ready() -> void:
 	# Run after the hook has moved this frame, so we pin to its current position.
@@ -110,15 +127,14 @@ func _ready() -> void:
 	if line:
 		# Points are written in global space; don't let the rod's rotation smear them.
 		line.top_level = true
-		line.joint_mode = Line2D.LINE_JOINT_ROUND
-		line.begin_cap_mode = Line2D.LINE_CAP_ROUND
-		line.end_cap_mode = Line2D.LINE_CAP_ROUND
-		line.antialiased = true
 		line.visible = false
+		# Appearance (texture, width, joints, caps, filter) is deliberately left to
+		# the scene so it can be tuned in the inspector - the script no longer
+		# overrides it.
 
 
 func _physics_process(delta: float) -> void:
-	if state == State.IDLE:
+	if state == FishingLineState.IDLE:
 		return
 	if not is_instance_valid(hook):
 		detach_hook()
@@ -129,17 +145,26 @@ func _physics_process(delta: float) -> void:
 	var far_end: Vector2
 
 	match state:
-		State.FLIGHT:
+		FishingLineState.FLIGHT:
 			# Pay line off the reel to keep up with the hook. Monotonic on purpose.
 			_air_len = maxf(_air_len, tip.distance_to(hook_pos) * cast_slack)
 			far_end = hook_pos
-		State.SUNK:
+		FishingLineState.SUNK:
 			# Feed in the leftover slack, then hold. The hook is irrelevant up here.
 			_air_len = lerpf(_air_len, _air_len_target, minf(1.0, slack_ramp * delta))
 			far_end = entry_point
-		State.RETURN:
-			# One rope again, being wound in - but never shorter than dead straight.
-			_air_len = maxf(tip.distance_to(hook_pos), _air_len - reel_speed * delta)
+		FishingLineState.RETURN:
+			# One rope again. Its length is the straight-line distance plus a slack
+			# allowance that only ever shrinks - so the hook can never outrun the
+			# reel, however fast it travels home.
+			#
+			# Winding the total length in at a fixed px/s does NOT work: the hook
+			# closes on the rod at its own speed, and the moment that exceeds
+			# reel_speed the rope gains slack faster than the reel removes it. The
+			# line bellies out and the hook reads as drifting home on its own
+			# rather than being hauled.
+			_return_slack = maxf(0.0, _return_slack - reel_speed * delta)
+			_air_len = tip.distance_to(hook_pos) * return_taut + _return_slack
 			far_end = hook_pos
 
 	_integrate(_air, _air_prev, Vector2(0.0, air_gravity), air_damping, delta)
@@ -148,10 +173,10 @@ func _physics_process(delta: float) -> void:
 	var half := maxi(1, iterations / 2)
 	for _pass in 2:
 		_solve(_air, _air_prev, _air_len, tip, far_end, half)
-		if state != State.FLIGHT:
+		if state != FishingLineState.FLIGHT:
 			_float_on_surface()
 
-	if state == State.SUNK:
+	if state == FishingLineState.SUNK:
 		# The hook drags line down through the entry point as it sinks and swims.
 		# Pays out freely; slack is only taken back up at water_reel_speed.
 		var want := entry_point.distance_to(hook_pos) * water_slack
@@ -182,7 +207,7 @@ func attach_hook(new_hook: Node2D) -> void:
 	_water_prev.clear()
 	_water_len = 0.0
 
-	state = State.FLIGHT
+	state = FishingLineState.FLIGHT
 	if line:
 		line.visible = true
 	_redraw()
@@ -190,7 +215,7 @@ func attach_hook(new_hook: Node2D) -> void:
 
 func detach_hook() -> void:
 	hook = null
-	state = State.IDLE
+	state = FishingLineState.IDLE
 	if line:
 		line.visible = false
 		line.clear_points()
@@ -199,7 +224,7 @@ func detach_hook() -> void:
 ## Connect the hook's splashdown signal here. `water_surface_y` is the global y of
 ## the water surface; pass NAN (or nothing) to just use the hook's own height.
 func _on_hook_entered_water(water_surface_y: float = NAN) -> void:
-	if state != State.FLIGHT or not is_instance_valid(hook):
+	if state != FishingLineState.FLIGHT or not is_instance_valid(hook):
 		return
 
 	surface_y = water_surface_y if is_finite(water_surface_y) else hook.global_position.y
@@ -214,7 +239,7 @@ func _on_hook_entered_water(water_surface_y: float = NAN) -> void:
 	_water_prev = _filled(water_points, entry_point)
 	_water_len = 0.0
 
-	state = State.SUNK
+	state = FishingLineState.SUNK
 
 
 ## Call when the hook starts heading home (connect the hook's started_returning
@@ -232,7 +257,7 @@ func _on_hook_entered_water(water_surface_y: float = NAN) -> void:
 ## arc-length spacing up front puts the points where that solve already wants
 ## them, so there's nothing to redistribute.
 func begin_return() -> void:
-	if state != State.SUNK:
+	if state != FishingLineState.SUNK:
 		return
 	var n := _air.size() + maxi(0, _water.size() - 1)
 	var merged := _resample(_combined(_air, _water), n)
@@ -240,11 +265,17 @@ func begin_return() -> void:
 	_air = merged
 	_air_len = _arc_length(merged)
 
+	# Everything the rope has beyond taut is slack to be wound in. Derived so the
+	# first RETURN frame reproduces _air_len exactly - no jump in rope length.
+	var tip: Vector2 = rod_tip.global_position if rod_tip else global_position
+	var straight := tip.distance_to(merged[merged.size() - 1])
+	_return_slack = maxf(0.0, _air_len - straight * return_taut)
+
 	_water.clear()
 	_water_prev.clear()
 	_water_len = 0.0
 
-	state = State.RETURN
+	state = FishingLineState.RETURN
 
 
 # --- simulation --------------------------------------------------------------
@@ -287,7 +318,7 @@ func _solve(p: Array[Vector2], prev: Array[Vector2], rest_len: float,
 			var dist := diff.length()
 			if dist < 0.0001:
 				continue
-			var corr := diff * (0.5 * (dist - seg) / dist)
+			var corr := diff * (0.5 * relaxation * (dist - seg) / dist)
 			var free_a := i != 0
 			var free_b := i + 1 != last
 			if free_a and free_b:
@@ -308,7 +339,7 @@ func _solve(p: Array[Vector2], prev: Array[Vector2], rest_len: float,
 ## Slack line can't sink under its own weight - it lies on the surface. Clamping
 ## here (rather than adding buoyancy) keeps it visually glued to the waterline.
 ##
-## Only line inside the surface_grip band is floated. During State.RETURN the
+## Only line inside the surface_grip band is floated. During FishingLineState.RETURN the
 ## whole rope lives in `_air`, submerged run included, and clamping all of it
 ## would haul the descent to the hook straight up to the waterline - which is
 ## exactly what made the merge snap ~40 px before this guard existed.

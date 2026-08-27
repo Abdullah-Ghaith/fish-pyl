@@ -1,4 +1,4 @@
-extends CharacterBody2D
+class_name FishingRod extends CharacterBody2D
 
 @export var projectile_scene: PackedScene = preload("res://Objects/Hook/hook.tscn")
 @onready var trajectory_line: TrajectoryLine = $TrajectoryLine
