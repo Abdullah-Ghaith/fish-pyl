@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://c1cc3tjanep5n"]
+
+[ext_resource type="Script" uid="uid://crxl3hqco33gd" path="res://Objects/FishingLine/fishing_line.gd" id="1_fl001"]
+
+[node name="FishingLine" type="Node2D" unique_id=1047603809 node_paths=PackedStringArray("line")]
+script = ExtResource("1_fl001")
+line = NodePath("Line2D")
+
+[node name="Line2D" type="Line2D" parent="." unique_id=326164485]
+top_level = true
+width = 3.0

@@ -11,6 +11,9 @@ shader_parameter/tint = Color(0.11764706, 1, 1, 1)
 
 [sub_resource type="Curve2D" id="Curve2D_7xs7t"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7xs7t"]
+size = Vector2(16, 5)
+
 [node name="WaterBody" type="Node2D" unique_id=1644343967]
 script = ExtResource("1_pwk5p")
 k = 0.01
@@ -29,8 +32,14 @@ script = ExtResource("3_yh4u0")
 spline_length = 2.0
 metadata/_custom_type_script = "uid://co6yykh77qcgh"
 
-[node name="Area2D" type="Area2D" parent="." unique_id=1611711690]
+[node name="Water_Spring" parent="." unique_id=2056230089 instance=ExtResource("4_7xs7t")]
+
+[node name="WaterBodyArea" type="Area2D" parent="." unique_id=1611711690]
 collision_layer = 2
 collision_mask = 8
 
-[node name="Water_Spring" parent="Area2D" unique_id=2056230089 instance=ExtResource("4_7xs7t")]
+[node name="WaterBodyCollisionShape" type="CollisionShape2D" parent="WaterBodyArea" unique_id=2107470110]
+shape = SubResource("RectangleShape2D_7xs7t")
+debug_color = Color(0.43039653, 0.4724424, 0.9621734, 0.41960785)
+
+[connection signal="body_entered" from="WaterBodyArea" to="." method="_on_water_body_area_body_entered"]

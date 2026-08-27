@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://blosenib0ldyp" path="res://Assets/Sprites/towerDefense_tile249.png" id="2_2g8pt"]
 [ext_resource type="PackedScene" uid="uid://0toku8yjv6q5" path="res://Objects/Hook/trajectory_line.tscn" id="3_2g8pt"]
 [ext_resource type="Shader" uid="uid://j2fqmvhjgfn5" path="res://Objects/ShooterDemo/s_moving_trajectory.gdshader" id="4_g40wn"]
+[ext_resource type="PackedScene" uid="uid://c1cc3tjanep5n" path="res://Objects/FishingLine/fishing_line.tscn" id="5_aie3p"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aie3p"]
 shader = ExtResource("4_g40wn")
@@ -15,7 +16,12 @@ script = ExtResource("1_mvxqb")
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=909651943]
 texture = ExtResource("2_2g8pt")
 
+[node name="ShootPos" type="Marker2D" parent="." unique_id=430676763]
+position = Vector2(44, -3)
+
 [node name="TrajectoryLine" parent="." unique_id=1199459380 instance=ExtResource("3_2g8pt")]
 material = SubResource("ShaderMaterial_aie3p")
+position = Vector2(27, 0)
 
-[node name="ShootPos" type="Marker2D" parent="." unique_id=962666944]
+[node name="FishingLine" parent="." unique_id=1047603809 node_paths=PackedStringArray("rod_tip") instance=ExtResource("5_aie3p")]
+rod_tip = NodePath("../ShootPos")

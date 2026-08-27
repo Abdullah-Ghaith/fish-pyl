@@ -15,7 +15,7 @@ script = ExtResource("1_827ki")
 
 [node name="CollisionTest" type="CharacterBody2D" parent="." unique_id=1209792465]
 collision_layer = 0
-collision_mask = 2
+collision_mask = 0
 
 [node name="HookCollisionShape" type="CollisionShape2D" parent="CollisionTest" unique_id=901518497]
 position = Vector2(0, 11)

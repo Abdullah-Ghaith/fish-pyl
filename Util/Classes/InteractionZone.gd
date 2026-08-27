@@ -1,0 +1,1 @@
+class_name InteractionZone extends Area2D

@@ -17,7 +17,6 @@ var last_collided_with : PhysicsBody2D = null
 
 signal splash(index: int, speed: float)
 
-
 func water_update(spring_constant : float, dampening: float):
 	
 	height = position.y

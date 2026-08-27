@@ -25,7 +25,19 @@ var springs : Array = []
 @onready var water_border: SmoothPath = $WaterBorder
 @export var border_thickness: float = 1.1
 
+@onready var water_body_area: Area2D = $WaterBodyArea
+@onready var water_body_collision_shape: CollisionShape2D = $WaterBodyArea/WaterBodyCollisionShape
+@onready var total_length : float = distance_between_springs * (num_springs - 1)
+
+signal entered_water 
+
 func _ready() -> void:
+	#Area setup:
+	water_body_area.position = Vector2(total_length / 2, depth / 2)
+	var rectangle = RectangleShape2D.new()
+	rectangle.size = Vector2(total_length, depth)
+	water_body_collision_shape.set_shape(rectangle)
+	
 	water_border.width = border_thickness
 	
 	for i in range(num_springs):
@@ -51,14 +63,17 @@ func _physics_process(delta: float) -> void:
 	
 	for j in range(passes):
 		for i in range(springs.size()):
-			# Add velocity to springs to the LEFT of the current spring
 			if i > 0:
 				left_deltas[i] = spread * (springs[i].height - springs[i-1].height)
 				springs[i-1].velocity += left_deltas[i]
-			# Add velocity to springs to the RIGHT of the current spring
-			if i < springs.size() -1 :
+			if i < springs.size() - 1:
 				right_deltas[i] = spread * (springs[i].height - springs[i+1].height)
 				springs[i+1].velocity += right_deltas[i]
+		for i in range(springs.size()):
+			if i > 0:
+				springs[i-1].height += left_deltas[i]
+			if i < springs.size() - 1:
+				springs[i+1].height += right_deltas[i]
 	
 	new_border()
 	draw_water_body()
@@ -115,3 +130,25 @@ func new_border():
 	# 3. Update the path representation
 	water_border.curve = curve
 	water_border.queue_redraw()
+
+
+func _on_water_body_area_body_entered(body: Node2D) -> void:
+	entered_water.emit()
+	if body is Hook:
+		# Hand the hook the exact waterline height so the fishing line can pin
+		# its slack at the surface instead of wherever the overlap was reported.
+		body.entered_water.emit(surface_y_at(body.global_position.x))
+	elif body.has_signal("entered_water"):
+		body.entered_water.emit()
+
+
+## Global y of the waterline at a given global x, interpolated between springs.
+func surface_y_at(global_x: float) -> float:
+	if springs.is_empty():
+		return global_position.y
+	var local_x: float = to_local(Vector2(global_x, 0.0)).x
+	var f: float = clampf(local_x / distance_between_springs, 0.0, float(springs.size() - 1))
+	var i: int = int(floor(f))
+	var j: int = mini(i + 1, springs.size() - 1)
+	var h: float = lerpf(springs[i].position.y, springs[j].position.y, f - float(i))
+	return to_global(Vector2(local_x, h)).y
