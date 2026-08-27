@@ -1,0 +1,5 @@
+add a hook hitting the fish
+add your player holding the fish over their head (with 2d godot particles (coffee tutorial) depending on rarity)
+add fish spawning routinely (not when you throw your hook in, just generally)
+add time limit on fishing "days", you go back with what you got (sack) and is deposited into a vault (where it slowly gives points until it decays)
+-> at first you have to clean it up yourself (decay fish dampen your points/hour [points*a where a < 1]), then an upgrade gives you auto cleanup 

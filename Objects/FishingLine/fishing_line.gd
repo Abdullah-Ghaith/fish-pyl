@@ -18,10 +18,21 @@ class_name FishingLine extends Node2D
 ##          entry point. Weak gravity + heavy damping, so it bows gently behind
 ##          the hook instead of snapping ruler-straight.
 ##
-## Nothing here moves the hook. The hook flies and sinks under its own script;
-## this node only observes it.
+## When the hook starts coming home the two sections merge back into a single
+## rope that gets reeled in (see begin_return).
+##
+## Nothing here moves the hook. The hook flies, sinks and returns under its own
+## script; this node only observes it.
+##
+## Wiring:
+##   1. Add as a child of the rod / shooter, set `rod_tip` to the tip marker.
+##   2. On cast:  fishing_line.attach_hook(hook_instance)
+##   3. Connect the hook's signals:
+##        entered_water     -> _on_hook_entered_water
+##        started_returning -> begin_return
+##   4. On reel-in / catch / despawn:  fishing_line.detach_hook()
 
-enum State { IDLE, FLIGHT, SUNK }
+enum State { IDLE, FLIGHT, SUNK, RETURN }
 
 @export_group("Nodes")
 @export var line: Line2D
@@ -43,6 +54,12 @@ enum State { IDLE, FLIGHT, SUNK }
 @export_range(0.8, 1.0) var air_damping: float = 0.985
 ## Slack line floats: how far below the surface an air-section point may sink.
 @export var float_depth: float = 2.0
+## How deep the surface still "grips" line and floats it back up. Only points
+## within this band get floated - anything deeper is line on its way down to the
+## hook and must be left alone. Keep it a few segment-lengths wide: too small and
+## line that dips through in one frame escapes, too large and it hauls the
+## submerged run up to the waterline.
+@export var surface_grip: float = 12.0
 ## Fraction of sideways speed a point keeps once it's touching the water.
 @export_range(0.0, 1.0) var surface_glide: float = 0.55
 
@@ -56,6 +73,15 @@ enum State { IDLE, FLIGHT, SUNK }
 ## Much weaker than air gravity - the line is near-neutrally buoyant in water.
 @export var water_gravity: float = 140.0
 @export_range(0.5, 1.0) var water_damping: float = 0.88
+## Line pays out instantly when the hook swims away from the entry point, but
+## slack is only taken up this fast (px/s) when it swims back toward it.
+## Without this, steering the hook homeward would leave a bunched-up underwater
+## section, because paid-out line has nowhere to go.
+@export var water_reel_speed: float = 60.0
+
+@export_group("Coming Home")
+## How fast the merged rope is reeled in (px/s) once the hook heads home.
+@export var reel_speed: float = 220.0
 
 @export_group("Solver")
 @export_range(1, 32) var iterations: int = 14
@@ -102,14 +128,19 @@ func _physics_process(delta: float) -> void:
 	var hook_pos: Vector2 = hook.global_position
 	var far_end: Vector2
 
-	if state == State.FLIGHT:
-		# Pay line off the reel to keep up with the hook. Monotonic on purpose.
-		_air_len = maxf(_air_len, tip.distance_to(hook_pos) * cast_slack)
-		far_end = hook_pos
-	else:
-		# Feed in the leftover slack, then hold. The hook is irrelevant up here.
-		_air_len = lerpf(_air_len, _air_len_target, minf(1.0, slack_ramp * delta))
-		far_end = entry_point
+	match state:
+		State.FLIGHT:
+			# Pay line off the reel to keep up with the hook. Monotonic on purpose.
+			_air_len = maxf(_air_len, tip.distance_to(hook_pos) * cast_slack)
+			far_end = hook_pos
+		State.SUNK:
+			# Feed in the leftover slack, then hold. The hook is irrelevant up here.
+			_air_len = lerpf(_air_len, _air_len_target, minf(1.0, slack_ramp * delta))
+			far_end = entry_point
+		State.RETURN:
+			# One rope again, being wound in - but never shorter than dead straight.
+			_air_len = maxf(tip.distance_to(hook_pos), _air_len - reel_speed * delta)
+			far_end = hook_pos
 
 	_integrate(_air, _air_prev, Vector2(0.0, air_gravity), air_damping, delta)
 	# Alternate solving and surface contact so the slack settles onto the water
@@ -117,12 +148,17 @@ func _physics_process(delta: float) -> void:
 	var half := maxi(1, iterations / 2)
 	for _pass in 2:
 		_solve(_air, _air_prev, _air_len, tip, far_end, half)
-		if state == State.SUNK:
+		if state != State.FLIGHT:
 			_float_on_surface()
 
 	if state == State.SUNK:
-		# The sinking hook drags more line down through the entry point.
-		_water_len = maxf(_water_len, entry_point.distance_to(hook_pos) * water_slack)
+		# The hook drags line down through the entry point as it sinks and swims.
+		# Pays out freely; slack is only taken back up at water_reel_speed.
+		var want := entry_point.distance_to(hook_pos) * water_slack
+		if want > _water_len:
+			_water_len = want
+		else:
+			_water_len = move_toward(_water_len, want, water_reel_speed * delta)
 		_integrate(_water, _water_prev, Vector2(0.0, water_gravity), water_damping, delta)
 		_solve(_water, _water_prev, _water_len, entry_point, hook_pos, iterations)
 
@@ -179,6 +215,36 @@ func _on_hook_entered_water(water_surface_y: float = NAN) -> void:
 	_water_len = 0.0
 
 	state = State.SUNK
+
+
+## Call when the hook starts heading home (connect the hook's started_returning
+## signal). The two sections merge back into one rope and it starts winding in.
+##
+## The merged rope traces exactly the polyline already on screen, so the shape
+## doesn't change - only the bookkeeping does: one rest length instead of two,
+## and the entry point stops being an anchor, which is what finally lets the
+## slack lift off the water.
+##
+## The resample matters. Merging two sections that had different segment lengths
+## (13 px above water, 29 px below, in the default setup) into one rope with a
+## single uniform segment length makes the solver redistribute every point along
+## the curve on the first frame - a visible ~40 px snap. Resampling to even
+## arc-length spacing up front puts the points where that solve already wants
+## them, so there's nothing to redistribute.
+func begin_return() -> void:
+	if state != State.SUNK:
+		return
+	var n := _air.size() + maxi(0, _water.size() - 1)
+	var merged := _resample(_combined(_air, _water), n)
+	_air_prev = _resample(_combined(_air_prev, _water_prev), n)
+	_air = merged
+	_air_len = _arc_length(merged)
+
+	_water.clear()
+	_water_prev.clear()
+	_water_len = 0.0
+
+	state = State.RETURN
 
 
 # --- simulation --------------------------------------------------------------
@@ -241,26 +307,90 @@ func _solve(p: Array[Vector2], prev: Array[Vector2], rest_len: float,
 
 ## Slack line can't sink under its own weight - it lies on the surface. Clamping
 ## here (rather than adding buoyancy) keeps it visually glued to the waterline.
+##
+## Only line inside the surface_grip band is floated. During State.RETURN the
+## whole rope lives in `_air`, submerged run included, and clamping all of it
+## would haul the descent to the hook straight up to the waterline - which is
+## exactly what made the merge snap ~40 px before this guard existed.
 func _float_on_surface() -> void:
 	var limit := surface_y + float_depth
+	var deepest := limit + surface_grip
 	for i in range(1, _air.size() - 1):
 		var pt := _air[i]
-		if pt.y <= limit:
+		if pt.y <= limit or pt.y > deepest:
 			continue
 		var vx := (pt.x - _air_prev[i].x) * surface_glide
 		_air[i] = Vector2(pt.x, limit)
 		_air_prev[i] = Vector2(pt.x - vx, limit)
 
 
+## Air section followed by the water section. b[0] is the same point as a[-1]
+## (both are the entry point), so it's dropped.
+func _combined(a: Array[Vector2], b: Array[Vector2]) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	out.resize(a.size() + maxi(0, b.size() - 1))
+	for i in a.size():
+		out[i] = a[i]
+	for i in range(1, b.size()):
+		out[a.size() + i - 1] = b[i]
+	return out
+
+
+## Re-places `n` points at equal arc-length intervals along `p`, tracing the same
+## shape. Used by begin_return; see the note there for why it's needed.
+func _resample(p: Array[Vector2], n: int) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	if n < 2:
+		return out
+	out.resize(n)
+	if p.is_empty():
+		return out
+	if p.size() < 2:
+		out.fill(p[0])
+		return out
+
+	var total := _arc_length(p)
+	if total < 0.0001:
+		out.fill(p[0])
+		return out
+
+	var step := total / float(n - 1)
+	out[0] = p[0]
+	out[n - 1] = p[p.size() - 1]
+
+	var seg := 0
+	var walked := 0.0   # arc length of everything before segment `seg`
+	for k in range(1, n - 1):
+		var target := step * float(k)
+		while seg < p.size() - 2:
+			var seg_len := p[seg].distance_to(p[seg + 1])
+			if walked + seg_len >= target:
+				break
+			walked += seg_len
+			seg += 1
+		var a := p[seg]
+		var b := p[seg + 1]
+		var here := a.distance_to(b)
+		var t := 0.0
+		if here >= 0.0001:
+			t = clampf((target - walked) / here, 0.0, 1.0)
+		out[k] = a.lerp(b, t)
+	return out
+
+
+func _arc_length(p: Array[Vector2]) -> float:
+	var total := 0.0
+	for i in p.size() - 1:
+		total += p[i].distance_to(p[i + 1])
+	return total
+
+
 func _redraw() -> void:
 	if not line:
 		return
-	# _water[0] is the same point as _air[-1], so skip it.
-	var total := _air.size() + maxi(0, _water.size() - 1)
+	var all := _combined(_air, _water)
 	var pts := PackedVector2Array()
-	pts.resize(total)
-	for i in _air.size():
-		pts[i] = _air[i]
-	for i in range(1, _water.size()):
-		pts[_air.size() + i - 1] = _water[i]
+	pts.resize(all.size())
+	for i in all.size():
+		pts[i] = all[i]
 	line.points = pts
