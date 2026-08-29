@@ -29,7 +29,8 @@ var springs : Array = []
 @onready var water_body_collision_shape: CollisionShape2D = $WaterBodyArea/WaterBodyCollisionShape
 @onready var total_length : float = distance_between_springs * (num_springs - 1)
 
-signal entered_water 
+signal entered_water
+signal exited_water
 
 func _ready() -> void:
 	#Area setup:
@@ -135,11 +136,13 @@ func new_border():
 func _on_water_body_area_body_entered(body: Node2D) -> void:
 	entered_water.emit()
 	if body is Hook:
-		# Hand the hook the exact waterline height so the fishing line can pin
-		# its slack at the surface instead of wherever the overlap was reported.
 		body.entered_water.emit(surface_y_at(body.global_position.x))
 	elif body.has_signal("entered_water"):
 		body.entered_water.emit()
+
+func _on_water_body_area_body_exited(body: Node2D) -> void:
+	if body is Hook:
+		exited_water.emit()
 
 
 ## Global y of the waterline at a given global x, interpolated between springs.

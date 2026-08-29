@@ -42,6 +42,5 @@ shape = SubResource("RectangleShape2D_xlvfx")
 script = ExtResource("6_2a143")
 
 [connection signal="entered_water" from="WaterBody" to="GameStateManager" method="_on_water_body_entered_water"]
-[connection signal="exited_water" from="WaterBody" to="GameStateManager" method="_on_water_body_exited_water"]
 [connection signal="body_entered" from="FishingArea" to="GameStateManager" method="_on_fishing_area_body_entered"]
 [connection signal="body_exited" from="FishingArea" to="GameStateManager" method="_on_fishing_area_body_exited"]

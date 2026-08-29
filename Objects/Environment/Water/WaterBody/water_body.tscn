@@ -43,3 +43,4 @@ shape = SubResource("RectangleShape2D_7xs7t")
 debug_color = Color(0.43039653, 0.4724424, 0.9621734, 0.41960785)
 
 [connection signal="body_entered" from="WaterBodyArea" to="." method="_on_water_body_area_body_entered"]
+[connection signal="body_exited" from="WaterBodyArea" to="." method="_on_water_body_area_body_exited"]

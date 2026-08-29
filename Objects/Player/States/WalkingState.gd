@@ -1,5 +1,5 @@
 class_name WalkingState extends State
-@onready var fishing_rod: FishingRod = $FishingRod
+@onready var fishing_rod: FishingRod = %FishingRod
 
 
 var player: Player = null
@@ -9,7 +9,9 @@ func _ready():
 
 func enter():
 	fishing_rod.hide()
-	player.movement_enabled = true
+	player.can_right = true
+	player.can_left = true
+	player.can_fire = false
 
 func exit():
 	pass

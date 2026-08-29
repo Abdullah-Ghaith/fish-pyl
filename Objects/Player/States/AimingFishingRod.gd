@@ -1,5 +1,5 @@
-class_name AimingFishingRod extends State
-@onready var fishing_rod: FishingRod = $FishingRod
+class_name AimingFishingRodState extends State
+@onready var fishing_rod: FishingRod = %FishingRod
 
 
 var player: Player = null
@@ -9,10 +9,13 @@ func _ready():
 
 func enter():
 	fishing_rod.show()
-	player.movement_enabled = false
+	fishing_rod.animation_idle()
+	player.can_right = false
+	player.can_left = true
+	player.can_fire = true
 
 func exit():
 	pass
 
-func physics_update(_delta: float):
+func physics_update(_delta: float): #listen to cast
 	pass

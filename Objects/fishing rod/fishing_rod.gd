@@ -3,13 +3,18 @@ class_name FishingRod extends CharacterBody2D
 @export var projectile_scene: PackedScene = preload("res://Objects/Hook/hook.tscn")
 @onready var trajectory_line: TrajectoryLine = $TrajectoryLine
 @onready var fishing_line: FishingLine = $FishingLine
+@onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
+var player : Player = null
 var projectile_speed: float = 0.0
 var projectile_gravity: float = 0.0
 var current_hook: Hook = null
 
+signal hook_fired
+signal hook_returned
 
 func _ready() -> void:
+	player = self.owner
 	if projectile_scene:
 		var temp_projectile: Hook = projectile_scene.instantiate()
 		projectile_speed = temp_projectile.speed
@@ -27,7 +32,7 @@ func _physics_process(delta: float) -> void:
 	elif Input.is_action_pressed("ui_down"):
 		projectile_speed -= 200 * delta
 	projectile_speed = clamp(projectile_speed, 100.0, 2000.0)
-	if Input.is_action_just_pressed("ui_accept"):
+	if Input.is_action_just_pressed("ui_accept") and player.can_fire:
 		shoot()
 	trajectory_line.rotation = -rotation
 	trajectory_line.update_trajectory(
@@ -39,9 +44,9 @@ func _physics_process(delta: float) -> void:
 
 
 func shoot() -> void:
-	# One hook at a time, otherwise the line has two masters.
-	reel_in()
 
+	hook_fired.emit()
+	
 	var instance: Hook = projectile_scene.instantiate()
 	instance.dir = $ShootPos.global_transform.x
 	instance.speed = projectile_speed
@@ -73,4 +78,13 @@ func reel_in() -> void:
 ## Hang catch / reward / scoring logic here.
 func _on_hook_returned() -> void:
 	fishing_line.detach_hook()
+	hook_returned.emit()
 	current_hook = null
+
+func animation_idle() -> void:
+	animated_sprite_2d.play("Idle")
+	trajectory_line.show()
+
+func animation_fishing() -> void:
+	animated_sprite_2d.play("Fishing")
+	trajectory_line.hide()
