@@ -5,6 +5,16 @@ class_name FishingRod extends CharacterBody2D
 @onready var fishing_line: FishingLine = $FishingLine
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
+@export_group("Camera")
+## The zoomed-in PhantomCamera2D. Its follow_mode must NOT be None, or assigning
+## follow_target at runtime silently does nothing (see PhantomCamera2D.set_follow_target).
+@export var pcam_hook: PhantomCamera2D
+## Priority pcam_hook takes while the hook is under water. Must beat the world
+## pcam's priority. The addon clamps priority to >= 0, so no negatives.
+@export var hook_pcam_priority: int = 20
+## Priority it drops back to once the hook leaves the water.
+@export var idle_pcam_priority: int = 0
+
 var player : Player = null
 var projectile_speed: float = 0.0
 var projectile_gravity: float = 0.0
@@ -12,6 +22,7 @@ var current_hook: Hook = null
 
 signal hook_fired
 signal hook_returned
+
 
 func _ready() -> void:
 	player = self.owner
@@ -44,26 +55,33 @@ func _physics_process(delta: float) -> void:
 
 
 func shoot() -> void:
-
 	hook_fired.emit()
-	
-	var instance: Hook = projectile_scene.instantiate()
-	instance.dir = $ShootPos.global_transform.x
-	instance.speed = projectile_speed
-	get_parent().add_child(instance)
-	instance.global_position = $ShootPos.global_position
-	instance.rod_tip = $ShootPos   # where the hook reels itself back to
-	current_hook = instance
+
+	var hook: Hook = projectile_scene.instantiate()
+	hook.dir = $ShootPos.global_transform.x
+	hook.speed = projectile_speed
+	get_tree().current_scene.add_child(hook)
+	hook.global_position = $ShootPos.global_position
+	hook.rod_tip = $ShootPos   # where the hook reels itself back to
+	current_hook = hook
 
 	# The line now runs rod tip -> hook and pays out as the hook flies.
-	instance.entered_water.connect(fishing_line._on_hook_entered_water)
-	instance.started_returning.connect(fishing_line.begin_return)
-	instance.returned.connect(_on_hook_returned)
-	fishing_line.attach_hook(instance)
+	hook.entered_water.connect(fishing_line._on_hook_entered_water)
+	hook.started_returning.connect(fishing_line.begin_return)
+	hook.returned.connect(_on_hook_returned)
+
+	# The same two moments drive the camera. Signals take any number of
+	# connections, so the line and the camera each listen without knowing about
+	# each other.
+	hook.entered_water.connect(_focus_camera_on_hook.bind(hook))
+	hook.returned.connect(_release_camera)
+
+	fishing_line.attach_hook(hook)
 
 
 func reel_in() -> void:
 	fishing_line.detach_hook()
+	_release_camera()
 	if is_instance_valid(current_hook):
 		# queue_free() is deferred, and hooks are siblings that process after this
 		# node - so a hook killed here would still run one more physics frame and
@@ -78,13 +96,34 @@ func reel_in() -> void:
 ## Hang catch / reward / scoring logic here.
 func _on_hook_returned() -> void:
 	fishing_line.detach_hook()
+	_release_camera()   # no-op if started_returning already fired; cheap insurance
 	hook_returned.emit()
 	current_hook = null
+
 
 func animation_idle() -> void:
 	animated_sprite_2d.play("Idle")
 	trajectory_line.show()
 
+
 func animation_fishing() -> void:
 	animated_sprite_2d.play("Fishing")
 	trajectory_line.hide()
+
+
+# --- camera ------------------------------------------------------------------
+
+## Splashdown: hand the zoomed-in pcam the hook and out-prioritise the world pcam.
+## PhantomCameraHost tweens position AND zoom across the switch, using the curve
+## on pcam_hook's own tween_resource - there is no Tween to write here.
+func _focus_camera_on_hook(_surface_y: float, which: Hook) -> void:
+	if not is_instance_valid(pcam_hook):
+		return
+	pcam_hook.follow_target = which
+	pcam_hook.priority = hook_pcam_priority
+
+
+func _release_camera() -> void:
+	if not is_instance_valid(pcam_hook):
+		return
+	pcam_hook.priority = idle_pcam_priority
