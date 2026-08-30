@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FishData" format=3 uid="uid://byv7eakynod2k"]
+
+[ext_resource type="Script" uid="uid://c8geieidknctv" path="res://Util/Classes/Fish/fish_data.gd" id="1_3nf52"]
+[ext_resource type="Texture2D" uid="uid://djn1hed4eyxjn" path="res://Assets/kenney_fish-pack_2/PNG/Default/fish_blue_outline.png" id="2_oavg3"]
+
+[resource]
+script = ExtResource("1_3nf52")
+title = &"Blue Fish"
+texture = ExtResource("2_oavg3")
+speed = 10.0
+cash_value = 10.0
+rarity = 1
+metadata/_custom_type_script = "uid://c8geieidknctv"

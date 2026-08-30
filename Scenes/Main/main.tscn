@@ -8,6 +8,10 @@
 [ext_resource type="Script" uid="uid://crjvtq684hpoi" path="res://Util/Managers/game_state_manager.gd" id="6_2a143"]
 [ext_resource type="Script" uid="uid://bhexx6mj1xv3q" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="8_imbg2"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="9_hfg1r"]
+[ext_resource type="Script" uid="uid://wl1yp562pgnc" path="res://Util/Classes/Fish Spawning Area/fish_spawning_area.gd" id="9_hryqi"]
+[ext_resource type="PackedScene" uid="uid://c1hqo8yp727oc" path="res://Util/Classes/Fish/fish.tscn" id="10_4e4y2"]
+[ext_resource type="Script" uid="uid://c8geieidknctv" path="res://Util/Classes/Fish/fish_data.gd" id="11_6t3k2"]
+[ext_resource type="Resource" uid="uid://byv7eakynod2k" path="res://Objects/Fish/blue_fish.tres" id="12_vk4q2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xlvfx"]
 size = Vector2(18, 49.5)
@@ -24,6 +28,20 @@ transition = 7
 
 [node name="Main" type="Node2D" unique_id=1542807437]
 script = ExtResource("1_lixft")
+
+[node name="Bands" type="Node" parent="." unique_id=1126553062]
+
+[node name="ShallowBand" type="Node2D" parent="Bands" unique_id=2115343200]
+position = Vector2(558, 40)
+script = ExtResource("9_hryqi")
+fish_scene = ExtResource("10_4e4y2")
+spawnable_fish = Array[ExtResource("11_6t3k2")]([ExtResource("12_vk4q2")])
+depth = 152.0
+width = 1112.0
+edge_margin = 20.0
+spawn_rate = 0.2
+rarity_weights = PackedFloat32Array(0, 100, 25, 6, 1)
+metadata/_custom_type_script = "uid://wl1yp562pgnc"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=326397405]
 top_level = true

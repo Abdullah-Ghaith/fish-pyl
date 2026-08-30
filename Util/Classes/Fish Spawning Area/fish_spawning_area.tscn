@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://d7lx7id7xol8"]
+
+[ext_resource type="Script" uid="uid://wl1yp562pgnc" path="res://Util/Classes/Fish Spawning Area/fish_spawning_area.gd" id="1_78wyd"]
+
+[node name="FishSpawningArea" type="Node2D" unique_id=1960698328]
+script = ExtResource("1_78wyd")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=194576923]

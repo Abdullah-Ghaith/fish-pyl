@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c1hqo8yp727oc"]
+
+[ext_resource type="Script" uid="uid://bi0ygtb21g73v" path="res://Util/Classes/Fish/fish.gd" id="1_ndr7y"]
+
+[node name="Fish" type="Node2D" unique_id=985308520]
+script = ExtResource("1_ndr7y")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=227770267]
+texture_filter = 1
