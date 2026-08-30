@@ -1,4 +1,4 @@
-class_name FishingRod extends CharacterBody2D
+class_name FishingRod extends Node2D
 
 @export var projectile_scene: PackedScene = preload("res://Objects/Hook/hook.tscn")
 @onready var trajectory_line: TrajectoryLine = $TrajectoryLine
@@ -15,14 +15,18 @@ class_name FishingRod extends CharacterBody2D
 ## Priority it drops back to once the hook leaves the water.
 @export var idle_pcam_priority: int = 0
 
+
+@export_group("Catching")
+@export var catch_capacity: int = 1
+
+
 var player : Player = null
 var projectile_speed: float = 0.0
 var projectile_gravity: float = 0.0
 var current_hook: Hook = null
 
 signal hook_fired
-signal hook_returned
-
+signal hook_returned(catch: Array[FishData])
 
 func _ready() -> void:
 	player = self.owner
@@ -63,6 +67,7 @@ func shoot() -> void:
 	get_tree().current_scene.add_child(hook)
 	hook.global_position = $ShootPos.global_position
 	hook.rod_tip = $ShootPos   # where the hook reels itself back to
+	hook.capacity = self.catch_capacity
 	current_hook = hook
 
 	# The line now runs rod tip -> hook and pays out as the hook flies.
@@ -74,7 +79,6 @@ func shoot() -> void:
 	# connections, so the line and the camera each listen without knowing about
 	# each other.
 	hook.entered_water.connect(_focus_camera_on_hook.bind(hook))
-	hook.returned.connect(_release_camera)
 
 	fishing_line.attach_hook(hook)
 
@@ -93,11 +97,10 @@ func reel_in() -> void:
 
 
 ## The hook made it back to the rod tip and is about to free itself.
-## Hang catch / reward / scoring logic here.
-func _on_hook_returned() -> void:
+func _on_hook_returned(catch: Array[FishData]) -> void:
 	fishing_line.detach_hook()
-	_release_camera()   # no-op if started_returning already fired; cheap insurance
-	hook_returned.emit()
+	_release_camera()
+	hook_returned.emit(catch)
 	current_hook = null
 
 

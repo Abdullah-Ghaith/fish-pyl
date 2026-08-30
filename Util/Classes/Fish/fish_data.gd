@@ -11,6 +11,11 @@ enum Rarity { None, Common, Rare, Bepic, Legendary }
 ## 1.0 = normal, 2.0 = twice as likely as its tier-mates.
 @export var weight_multiplier: float = 1.0
 
+@export_group("HitBox")
+@export var hitbox : Shape2D
+## Only used for the auto-fitted rectangle
+@export var hitbox_scale: Vector2 = Vector2(0.8, 0.6) 
+
 
 ## Resources have no _ready, so the spawner calls this once at startup.
 ## Returns false if the resource is unusable, so the spawner can skip it.

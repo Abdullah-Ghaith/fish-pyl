@@ -2,8 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bi0ygtb21g73v" path="res://Util/Classes/Fish/fish.gd" id="1_ndr7y"]
 
-[node name="Fish" type="Node2D" unique_id=985308520]
+[node name="Fish" type="Area2D" unique_id=1938735910]
+collision_layer = 4
+collision_mask = 0
 script = ExtResource("1_ndr7y")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=227770267]
 texture_filter = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1370477105]

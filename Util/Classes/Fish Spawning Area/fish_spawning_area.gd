@@ -77,7 +77,8 @@ func _process(delta: float) -> void:
 		return
 
 	for i in range(_fish.size() - 1, -1, -1):
-		if not is_instance_valid(_fish[i]):
+		var f: Fish = _fish[i]
+		if not is_instance_valid(f) or f.get_parent() != self:
 			_fish.remove_at(i)
 
 	# Accumulator rather than a Timer, so an upgrade to spawn_rate takes effect

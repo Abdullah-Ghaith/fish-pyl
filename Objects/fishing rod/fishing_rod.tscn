@@ -79,8 +79,9 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="FishingRod" type="CharacterBody2D" unique_id=1000161174]
+[node name="FishingRod" type="Node2D" unique_id=1144399455]
 script = ExtResource("1_mvxqb")
+catch_capacity = 2
 
 [node name="ShootPos" type="Marker2D" parent="." unique_id=430676763]
 position = Vector2(19, -9)

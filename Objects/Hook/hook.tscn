@@ -6,12 +6,17 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8clvq"]
 size = Vector2(5, 8)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uydi8"]
+size = Vector2(6.3333335, 8.666667)
+
 [node name="Hook" type="CharacterBody2D" unique_id=252194770]
 scale = Vector2(3, 3)
 collision_layer = 8
 collision_mask = 2
 script = ExtResource("1_8clvq")
 speed = 400.0
+catch_slot_spacing = Vector2(0, 4)
+catch_slot_stagger = 4.0
 reel_speed = 640.0
 return_ramp = 20.0
 
@@ -21,3 +26,12 @@ texture = ExtResource("2_8clvq")
 [node name="HookCollisionShape" type="CollisionShape2D" parent="." unique_id=1426422230]
 position = Vector2(0.5, 0)
 shape = SubResource("RectangleShape2D_8clvq")
+
+[node name="CatchArea" type="Area2D" parent="." unique_id=514469447]
+collision_layer = 0
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CatchArea" unique_id=1410813074]
+position = Vector2(0.5000001, 0.33333334)
+shape = SubResource("RectangleShape2D_uydi8")
+debug_color = Color(0.72307295, 0.47311026, 0.19611368, 0.41960785)

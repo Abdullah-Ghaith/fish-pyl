@@ -29,9 +29,9 @@ transition = 7
 [node name="Main" type="Node2D" unique_id=1542807437]
 script = ExtResource("1_lixft")
 
-[node name="Bands" type="Node" parent="." unique_id=1126553062]
+[node name="FishSpawningBands" type="Node" parent="." unique_id=1126553062]
 
-[node name="ShallowBand" type="Node2D" parent="Bands" unique_id=2115343200]
+[node name="ShallowBand" type="Node2D" parent="FishSpawningBands" unique_id=2115343200]
 position = Vector2(558, 40)
 script = ExtResource("9_hryqi")
 fish_scene = ExtResource("10_4e4y2")
@@ -39,7 +39,7 @@ spawnable_fish = Array[ExtResource("11_6t3k2")]([ExtResource("12_vk4q2")])
 depth = 152.0
 width = 1112.0
 edge_margin = 20.0
-spawn_rate = 0.2
+spawn_rate = 1.0
 rarity_weights = PackedFloat32Array(0, 100, 25, 6, 1)
 metadata/_custom_type_script = "uid://wl1yp562pgnc"
 
@@ -74,10 +74,10 @@ position = Vector2(-812, -411)
 [node name="FishingRod" parent="Player" index="2" unique_id=1000161174 node_paths=PackedStringArray("pcam_hook")]
 pcam_hook = NodePath("../../PCamHook")
 
-[node name="FishingArea" type="Area2D" parent="." unique_id=1233701723]
+[node name="FishingDetectionArea" type="Area2D" parent="." unique_id=1233701723]
 collision_layer = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FishingArea" unique_id=1611957092]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FishingDetectionArea" unique_id=1611957092]
 position = Vector2(-31, -25.25)
 shape = SubResource("RectangleShape2D_xlvfx")
 
@@ -107,7 +107,7 @@ metadata/_custom_type_script = "uid://bhexx6mj1xv3q"
 
 [connection signal="entered_water" from="WaterBody" to="GameStateManager" method="_on_water_body_entered_water"]
 [connection signal="exited_water" from="WaterBody" to="GameStateManager" method="_on_water_body_exited_water"]
-[connection signal="body_entered" from="FishingArea" to="GameStateManager" method="_on_fishing_area_body_entered"]
-[connection signal="body_exited" from="FishingArea" to="GameStateManager" method="_on_fishing_area_body_exited"]
+[connection signal="body_entered" from="FishingDetectionArea" to="GameStateManager" method="_on_fishing_area_body_entered"]
+[connection signal="body_exited" from="FishingDetectionArea" to="GameStateManager" method="_on_fishing_area_body_exited"]
 
 [editable path="Player"]

@@ -19,5 +19,5 @@ func exit():
 func physics_update(_delta: float):
 	pass
 
-func _on_fishing_rod_hook_returned() -> void:
+func _on_fishing_rod_hook_returned(_catch: Array[FishData]) -> void:
 	self.transitioned.emit(self, "AimingFishingRodState")
