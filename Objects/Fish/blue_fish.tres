@@ -12,6 +12,6 @@ title = &"Blue Fish"
 texture = ExtResource("2_oavg3")
 speed = 10.0
 cash_value = 10.0
-rarity = 4
+rarity = 1
 hitbox = SubResource("RectangleShape2D_oavg3")
 metadata/_custom_type_script = "uid://c8geieidknctv"

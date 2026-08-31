@@ -5,6 +5,8 @@
 [ext_resource type="AudioStream" uid="uid://54hpl5t1rgnx" path="res://Assets/Audio/Sax jingles/jingles_SAX06.ogg" id="3_6surm"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_hpf2q"]
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
 
 [resource]
 script = ExtResource("1_yu0wj")
