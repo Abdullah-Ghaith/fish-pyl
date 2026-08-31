@@ -2,11 +2,22 @@
 
 [ext_resource type="Texture2D" uid="uid://c5qqp432jm77u" path="res://Assets/kenney_pico-8-platformer/Transparent/Tilemap/tilemap_packed.png" id="1_156m4"]
 [ext_resource type="Script" uid="uid://b1t6jqud3dgp3" path="res://Objects/Player/player.gd" id="1_yw17q"]
+[ext_resource type="Texture2D" uid="uid://3cuselgjjubx" path="res://Assets/kenney_pico-8-platformer/PicoPlayer-HoldingUpFisht.png" id="2_jllbl"]
 [ext_resource type="PackedScene" uid="uid://cdywyoyr2buh" path="res://Objects/fishing rod/fishing_rod.tscn" id="3_l2ya6"]
 [ext_resource type="Script" uid="uid://cgoa5sq0iwxxu" path="res://Util/StateMachine/StateMachine.gd" id="4_t45n6"]
-[ext_resource type="Script" uid="uid://craixu3a08v0v" path="res://Objects/Player/States/FishingState.gd" id="5_u7612"]
-[ext_resource type="Script" uid="uid://dufkrdb8s6llo" path="res://Objects/Player/States/WalkingState.gd" id="6_bpp7x"]
-[ext_resource type="Script" uid="uid://djmmuktycfcto" path="res://Objects/Player/States/AimingFishingRod.gd" id="7_bpp7x"]
+[ext_resource type="Script" uid="uid://craixu3a08v0v" path="res://Objects/Player/States/fishing_state.gd" id="5_u7612"]
+[ext_resource type="Script" uid="uid://dufkrdb8s6llo" path="res://Objects/Player/States/walking_state.gd" id="6_bpp7x"]
+[ext_resource type="Script" uid="uid://djmmuktycfcto" path="res://Objects/Player/States/aiming_fishing_rod_state.gd" id="7_bpp7x"]
+[ext_resource type="Script" uid="uid://cee0vlobm027p" path="res://Objects/Player/States/showing_catch_state.gd" id="9_0mj7g"]
+[ext_resource type="PackedScene" uid="uid://do511gy1d1ion" path="res://Util/Classes/Fish/catch_display.tscn" id="10_thffa"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0mj7g"]
+atlas = ExtResource("2_jllbl")
+region = Rect2(0, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_thffa"]
+atlas = ExtResource("2_jllbl")
+region = Rect2(8, 0, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yw17q"]
 atlas = ExtResource("1_156m4")
@@ -30,6 +41,17 @@ region = Rect2(24, 56, 8, 8)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_bpp7x"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0mj7g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_thffa")
+}],
+"loop": true,
+"name": &"holding_catch",
+"speed": 1.5
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yw17q")
@@ -65,12 +87,12 @@ script = ExtResource("1_yw17q")
 SPEED = 250.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=279364650]
+unique_name_in_owner = true
 scale = Vector2(5, 5)
 sprite_frames = SubResource("SpriteFrames_bpp7x")
-animation = &"idle"
+animation = &"holding_catch"
 autoplay = "idle"
-frame = 1
-frame_progress = 0.5514973
+frame_progress = 0.8886969
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1816899909]
 position = Vector2(-1, 2.5)
@@ -97,6 +119,14 @@ metadata/_custom_type_script = "uid://dufkrdb8s6llo"
 [node name="AimingFishingRodState" type="Node" parent="StateMachine" unique_id=1661934568]
 script = ExtResource("7_bpp7x")
 metadata/_custom_type_script = "uid://djmmuktycfcto"
+
+[node name="ShowingCatchState" type="Node" parent="StateMachine" unique_id=365643449]
+script = ExtResource("9_0mj7g")
+metadata/_custom_type_script = "uid://cee0vlobm027p"
+
+[node name="CatchDisplay" parent="." unique_id=330022967 instance=ExtResource("10_thffa")]
+unique_name_in_owner = true
+position = Vector2(0, -51)
 
 [connection signal="hook_fired" from="FishingRod" to="." method="_on_fishing_rod_hook_fired"]
 [connection signal="hook_returned" from="FishingRod" to="StateMachine/FishingState" method="_on_fishing_rod_hook_returned"]

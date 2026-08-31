@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RarityStyle" format=3 uid="uid://xqnxjxdly8hn"]
+
+[ext_resource type="Script" uid="uid://dfb6fljp3du7r" path="res://Util/Classes/Fish/rarity_style.gd" id="1_mxvov"]
+[ext_resource type="PackedScene" uid="uid://bev06oful2tl4" path="res://VFX/Catch Particles/legendary_catch_particle.tscn" id="1_yj12p"]
+[ext_resource type="AudioStream" uid="uid://c8nkqhoyrukuo" path="res://Assets/Audio/Sax jingles/jingles_SAX07.ogg" id="3_skefu"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_c1lpr"]
+
+[resource]
+script = ExtResource("1_mxvov")
+particles = ExtResource("1_yj12p")
+label_settings = SubResource("LabelSettings_c1lpr")
+sound = ExtResource("3_skefu")
+metadata/_custom_type_script = "uid://dfb6fljp3du7r"

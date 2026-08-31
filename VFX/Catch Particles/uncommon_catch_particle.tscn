@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://dua7aaxu4b4ym"]
+
+[ext_resource type="Texture2D" uid="uid://cpfqdch35arbw" path="res://Assets/VFX/random_selection.png" id="1_64w04"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_i1e5r"]
+blend_mode = 1
+light_mode = 1
+particles_animation = true
+particles_anim_h_frames = 3
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_8iu6b"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.909427, 0.6600567), -0.3180817, -0.3180817, 0, 0, Vector2(0.9963032, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_552no"]
+curve = SubResource("Curve_8iu6b")
+
+[sub_resource type="Curve" id="Curve_4n4t6"]
+_data = [Vector2(0, 0.98017), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2537909, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_s8inc"]
+curve = SubResource("Curve_4n4t6")
+
+[sub_resource type="Gradient" id="Gradient_w5uh3"]
+offsets = PackedFloat32Array(0, 0.6222664, 1)
+colors = PackedColorArray(0.9671508, 0.9671508, 0.9671508, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_l4uad"]
+gradient = SubResource("Gradient_w5uh3")
+
+[sub_resource type="Curve" id="Curve_tynsm"]
+_data = [Vector2(0, 0), 0.0, 2.9225905, 0, 0, Vector2(1, 0.99150145), 0.1734993, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_lwb8r"]
+curve = SubResource("Curve_tynsm")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_8kcn8"]
+particle_flag_disable_z = true
+angle_min = 1.0000107
+angle_max = 360.00003
+gravity = Vector3(0, 0, 0)
+scale_min = 0.39999998
+scale_max = 0.45
+scale_curve = SubResource("CurveTexture_lwb8r")
+color = Color(0.44427285, 0.83248836, 0.433181, 1)
+color_ramp = SubResource("GradientTexture1D_l4uad")
+alpha_curve = SubResource("CurveTexture_552no")
+hue_variation_min = -0.20000002
+hue_variation_max = -2.2351742e-08
+anim_speed_min = 0.099999994
+anim_speed_max = 0.19999999
+anim_speed_curve = SubResource("CurveTexture_s8inc")
+anim_offset_max = 0.099999994
+
+[node name="UncommonCatchParticle" type="GPUParticles2D" unique_id=1597211112]
+z_index = -1
+material = SubResource("CanvasItemMaterial_i1e5r")
+amount = 4
+texture = ExtResource("1_64w04")
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_8kcn8")

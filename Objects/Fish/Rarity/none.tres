@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="RarityStyle" format=3 uid="uid://bsnrq6rtsi2cx"]
+
+[ext_resource type="Script" uid="uid://dfb6fljp3du7r" path="res://Util/Classes/Fish/rarity_style.gd" id="1_7rwdr"]
+
+[resource]
+script = ExtResource("1_7rwdr")
+metadata/_custom_type_script = "uid://dfb6fljp3du7r"

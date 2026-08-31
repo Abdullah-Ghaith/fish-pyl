@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://11kp0gond8ex"]
+
+[ext_resource type="PackedScene" uid="uid://hprx6kvug46y" path="res://VFX/Catch Particles/rare_catch_particle.tscn" id="1_n8w5v"]
+
+[sub_resource type="Curve" id="Curve_n8w5v"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.909427, 0.6600567), -0.3180817, -0.3180817, 0, 0, Vector2(0.9963032, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_5u1bf"]
+curve = SubResource("Curve_n8w5v")
+
+[sub_resource type="Curve" id="Curve_wis65"]
+_data = [Vector2(0, 0.98017), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2537909, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_578pn"]
+curve = SubResource("Curve_wis65")
+
+[sub_resource type="Gradient" id="Gradient_dbdbo"]
+offsets = PackedFloat32Array(0, 0.6222664, 1)
+colors = PackedColorArray(0.9671508, 0.9671508, 0.9671508, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_utbvj"]
+gradient = SubResource("Gradient_dbdbo")
+
+[sub_resource type="Curve" id="Curve_dpadh"]
+_data = [Vector2(0, 0), 0.0, 2.9225905, 0, 0, Vector2(1, 0.99150145), 0.1734993, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_vhp4d"]
+curve = SubResource("Curve_dpadh")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_0fwp7"]
+particle_flag_disable_z = true
+angle_min = 1.0000107
+angle_max = 360.00003
+gravity = Vector3(0, 0, 0)
+scale_min = 0.65
+scale_max = 0.7
+scale_curve = SubResource("CurveTexture_vhp4d")
+color = Color(1.4371337, 0.75231344, 1.9833592, 1)
+color_ramp = SubResource("GradientTexture1D_utbvj")
+alpha_curve = SubResource("CurveTexture_5u1bf")
+hue_variation_min = -0.030000022
+hue_variation_max = -2.2351742e-08
+anim_speed_min = 0.099999994
+anim_speed_max = 0.19999999
+anim_speed_curve = SubResource("CurveTexture_578pn")
+anim_offset_max = 0.099999994
+
+[node name="BepicCatchParticle" unique_id=1597211112 instance=ExtResource("1_n8w5v")]
+amount = 6
+speed_scale = 1.2
+process_material = SubResource("ParticleProcessMaterial_0fwp7")

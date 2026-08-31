@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://beofpyppdcdwe"
+path="res://.godot/imported/jingles_STEEL09.ogg-b3ad83b604b7d87dfa0529469e5dfebd.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Audio/Steel jingles/jingles_STEEL09.ogg"
+dest_files=["res://.godot/imported/jingles_STEEL09.ogg-b3ad83b604b7d87dfa0529469e5dfebd.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

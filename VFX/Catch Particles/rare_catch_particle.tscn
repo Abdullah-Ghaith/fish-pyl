@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://hprx6kvug46y"]
+
+[ext_resource type="PackedScene" uid="uid://dua7aaxu4b4ym" path="res://VFX/Catch Particles/uncommon_catch_particle.tscn" id="1_5f0ls"]
+
+[sub_resource type="Curve" id="Curve_5f0ls"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.909427, 0.6600567), -0.3180817, -0.3180817, 0, 0, Vector2(0.9963032, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_w7pva"]
+curve = SubResource("Curve_5f0ls")
+
+[sub_resource type="Curve" id="Curve_6e4tp"]
+_data = [Vector2(0, 0.98017), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2537909, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_qdmft"]
+curve = SubResource("Curve_6e4tp")
+
+[sub_resource type="Gradient" id="Gradient_d0aoh"]
+offsets = PackedFloat32Array(0, 0.6222664, 1)
+colors = PackedColorArray(0.9671508, 0.9671508, 0.9671508, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_m8ti4"]
+gradient = SubResource("Gradient_d0aoh")
+
+[sub_resource type="Curve" id="Curve_uhupg"]
+_data = [Vector2(0, 0), 0.0, 2.9225905, 0, 0, Vector2(1, 0.99150145), 0.1734993, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_ul1by"]
+curve = SubResource("Curve_uhupg")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_vlygi"]
+particle_flag_disable_z = true
+angle_min = 1.0000107
+angle_max = 360.00003
+gravity = Vector3(0, 0, 0)
+scale_min = 0.55
+scale_max = 0.59999996
+scale_curve = SubResource("CurveTexture_ul1by")
+color = Color(0.52988327, 0.72480047, 1.2884799, 1)
+color_ramp = SubResource("GradientTexture1D_m8ti4")
+alpha_curve = SubResource("CurveTexture_w7pva")
+hue_variation_min = -0.030000022
+hue_variation_max = -2.2351742e-08
+anim_speed_min = 0.099999994
+anim_speed_max = 0.19999999
+anim_speed_curve = SubResource("CurveTexture_qdmft")
+anim_offset_max = 0.099999994
+
+[node name="RareCatchParticle" unique_id=1597211112 instance=ExtResource("1_5f0ls")]
+z_index = -1
+speed_scale = 1.15
+process_material = SubResource("ParticleProcessMaterial_vlygi")

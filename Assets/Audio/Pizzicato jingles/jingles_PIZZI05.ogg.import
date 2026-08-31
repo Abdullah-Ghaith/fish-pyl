@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://db4mqk27be4kj"
+path="res://.godot/imported/jingles_PIZZI05.ogg-b013626bf8ed0d9b7dc255bf66b44753.oggvorbisstr"
+
+[deps]
+
+source_file="res://Assets/Audio/Pizzicato jingles/jingles_PIZZI05.ogg"
+dest_files=["res://.godot/imported/jingles_PIZZI05.ogg-b013626bf8ed0d9b7dc255bf66b44753.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

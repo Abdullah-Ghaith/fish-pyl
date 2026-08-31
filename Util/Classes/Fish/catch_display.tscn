@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://do511gy1d1ion"]
+
+[ext_resource type="Script" uid="uid://cwsbe8d2lujc3" path="res://Util/Classes/Fish/catch_display.gd" id="1_nv20j"]
+[ext_resource type="PackedScene" uid="uid://bapay6vxailpv" path="res://Util/Classes/Fish/catch_entry.tscn" id="2_mtmp8"]
+[ext_resource type="Script" uid="uid://dfb6fljp3du7r" path="res://Util/Classes/Fish/rarity_style.gd" id="3_f20na"]
+[ext_resource type="Resource" uid="uid://bsnrq6rtsi2cx" path="res://Objects/Fish/Rarity/none.tres" id="4_gywn8"]
+[ext_resource type="Resource" uid="uid://r2ws8epiimwb" path="res://Objects/Fish/Rarity/common.tres" id="5_l2y7t"]
+[ext_resource type="Resource" uid="uid://kwvgwi0ny8v3" path="res://Objects/Fish/Rarity/rare.tres" id="6_3bxrm"]
+[ext_resource type="Resource" uid="uid://b20t4eqojfhgv" path="res://Objects/Fish/Rarity/bepic.tres" id="7_mg6s6"]
+[ext_resource type="Resource" uid="uid://xqnxjxdly8hn" path="res://Objects/Fish/Rarity/legendary.tres" id="8_g2os3"]
+
+[node name="CatchDisplay" type="Node2D" unique_id=330022967]
+z_index = 3
+script = ExtResource("1_nv20j")
+entry_scene = ExtResource("2_mtmp8")
+rarity_styles = Array[ExtResource("3_f20na")]([ExtResource("4_gywn8"), ExtResource("5_l2y7t"), ExtResource("6_3bxrm"), ExtResource("7_mg6s6"), ExtResource("8_g2os3")])
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=188263275]

@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://ckirw2b8d5j12"]
+
+[ext_resource type="PackedScene" uid="uid://bev06oful2tl4" path="res://VFX/Catch Particles/legendary_catch_particle.tscn" id="1_w8xai"]
+
+[sub_resource type="Curve" id="Curve_bkoqw"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.909427, 0.6600567), -0.3180817, -0.3180817, 0, 0, Vector2(0.9963032, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_nvup0"]
+curve = SubResource("Curve_bkoqw")
+
+[sub_resource type="Curve" id="Curve_g3jod"]
+_data = [Vector2(0, 0.98017), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.2537909, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_foueg"]
+curve = SubResource("Curve_g3jod")
+
+[sub_resource type="Gradient" id="Gradient_e6pml"]
+offsets = PackedFloat32Array(0, 0.6222664, 1)
+colors = PackedColorArray(0.96862745, 0, 0, 1, 0.96862745, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_brfru"]
+gradient = SubResource("Gradient_e6pml")
+
+[sub_resource type="Curve" id="Curve_kueyt"]
+_limits = [-1.0, 1.0, 0.0, 1.0]
+_data = [Vector2(0, -1), 0.0, 0.0, 0, 0, Vector2(1, 0.9071429), -0.40761, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_pi76i"]
+curve = SubResource("Curve_kueyt")
+
+[sub_resource type="Curve" id="Curve_nuuam"]
+_data = [Vector2(0, 0), 0.0, 2.9225905, 0, 0, Vector2(1, 0.99150145), 0.1734993, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_vumde"]
+curve = SubResource("Curve_nuuam")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_xkjcu"]
+particle_flag_disable_z = true
+angle_min = 1.0000107
+angle_max = 360.00003
+gravity = Vector3(0, 0, 0)
+scale_min = 0.79999995
+scale_max = 0.9
+scale_curve = SubResource("CurveTexture_vumde")
+color = Color(1.7310001, 1.7310001, 1.7310001, 1)
+color_ramp = SubResource("GradientTexture1D_brfru")
+alpha_curve = SubResource("CurveTexture_nvup0")
+hue_variation_min = -0.5
+hue_variation_max = 0.49999997
+hue_variation_curve = SubResource("CurveTexture_pi76i")
+anim_speed_min = 0.099999994
+anim_speed_max = 0.19999999
+anim_speed_curve = SubResource("CurveTexture_foueg")
+anim_offset_max = 0.099999994
+
+[node name="UniqueCatchParticle" unique_id=1597211112 instance=ExtResource("1_w8xai")]
+process_material = SubResource("ParticleProcessMaterial_xkjcu")

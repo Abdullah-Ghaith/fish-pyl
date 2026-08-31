@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://puj8k0oy3stu"]
+
+[ext_resource type="PackedScene" uid="uid://bev06oful2tl4" path="res://VFX/Catch Particles/legendary_catch_particle.tscn" id="1_qb7gb"]
+[ext_resource type="Texture2D" uid="uid://djn1hed4eyxjn" path="res://Assets/kenney_fish-pack_2/PNG/Default/fish_blue_outline.png" id="2_v266f"]
+[ext_resource type="PackedScene" uid="uid://11kp0gond8ex" path="res://VFX/Catch Particles/bepic_catch_particles.tscn" id="3_lm67r"]
+[ext_resource type="PackedScene" uid="uid://hprx6kvug46y" path="res://VFX/Catch Particles/rare_catch_particle.tscn" id="4_pfhc6"]
+[ext_resource type="PackedScene" uid="uid://dua7aaxu4b4ym" path="res://VFX/Catch Particles/uncommon_catch_particle.tscn" id="5_q22ob"]
+
+[node name="Node2D" type="Node2D" unique_id=1862015889]
+
+[node name="LegendaryCatchParticle" parent="." unique_id=1471977257 instance=ExtResource("1_qb7gb")]
+position = Vector2(400, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="LegendaryCatchParticle" unique_id=1761623480]
+texture = ExtResource("2_v266f")
+
+[node name="BepicCatchParticle" parent="." unique_id=1597211112 instance=ExtResource("3_lm67r")]
+position = Vector2(240, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="BepicCatchParticle" unique_id=2044487238]
+texture = ExtResource("2_v266f")
+
+[node name="RareCatchParticle" parent="." unique_id=304771016 instance=ExtResource("4_pfhc6")]
+position = Vector2(120, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="RareCatchParticle" unique_id=548406639]
+texture = ExtResource("2_v266f")
+
+[node name="UncommonCatchParticle" parent="." unique_id=586836755 instance=ExtResource("5_q22ob")]
+position = Vector2(0, -2)
+
+[node name="Sprite2D" type="Sprite2D" parent="UncommonCatchParticle" unique_id=1683645356]
+texture = ExtResource("2_v266f")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1843726585]
