@@ -1,5 +1,6 @@
 class_name CatchDisplay extends Node2D
-## Presents the fish a cast brought in, above the player's head.
+## Presents the fish a cast brought in, above the player's head - one at a time,
+## least rare first, so the haul builds toward its best fish.
 
 @export var entry_scene: PackedScene
 ## Indexed to match FishData.Rarity: [None, Common, Rare, Bepic, Legendary].
@@ -7,21 +8,27 @@ class_name CatchDisplay extends Node2D
 @export var rarity_styles: Array[RarityStyle] = []
 
 @export_group("Layout")
-@export var spacing: float = 22.0
+## How far below its resting spot a fish starts before popping up.
 @export var rise_height: float = 14.0
 
 @export_group("Timing")
 @export var pop_time: float = 0.28
-@export var stagger: float = 0.12
 @export var fade_time: float = 0.3
-## Floor for how long the row stays up. A rarer fish's hold_time can extend it.
+## Floor for how long each fish stays up. Its tier's hold_time can extend it.
 @export var min_hold: float = 0.9
+## Beat between one fish leaving and the next arriving.
+@export var gap: float = 0.15
 
 @onready var audio: AudioStreamPlayer = $AudioStreamPlayer
 
 signal finished
+## Fires as each fish appears - hook a counter or running cash total to it.
+signal presented(data: FishData, index: int, total: int)
 
 var _entries: Array[CatchEntry] = []
+## False once clear() has run. show_catch is a coroutine spanning several
+## seconds; without this it would keep spawning fish after being cleared.
+var _running: bool = false
 
 
 func style_for(data: FishData) -> RarityStyle:
@@ -38,74 +45,74 @@ func show_catch(catch: Array[FishData]) -> void:
 	if catch.is_empty():
 		finished.emit()
 		return
+	_running = true
 
-	# The rarest fish in the haul sets the hold time and the sound, so one
-	# legendary among commons still gets its moment.
-	var hold: float = min_hold
-	var best_tier: int = -1
-	var sound: AudioStream = null
+	# duplicate() first: sort_custom is in-place, and this array belongs to the
+	# player - ShowingCatchState.exit() clears it out from under us.
+	var order: Array[FishData] = catch.duplicate()
+	order.sort_custom(func(a: FishData, b: FishData) -> bool:
+		return int(a.rarity) < int(b.rarity))
 
-	for i in catch.size():
-		var data: FishData = catch[i]
-		var style: RarityStyle = style_for(data)
-		if style:
-			hold = maxf(hold, style.hold_time)
-			if int(data.rarity) > best_tier:
-				best_tier = int(data.rarity)
-				sound = style.sound
+	for i in order.size():
+		presented.emit(order[i], i, order.size())
+		await _present(order[i])
+		if not _running:
+			return
 
-		var entry: CatchEntry = entry_scene.instantiate()
-		add_child(entry)           # runs _ready, so setup() can use @onready vars
-		entry.setup(data, style)
-		entry.position = Vector2(_slot_x(i, catch.size()), 0.0)
-		_entries.append(entry)
-		_pop_in(entry, i)
-
-	if sound and audio:
-		audio.stream = sound
-		audio.play()
-
-	var wait: float = pop_time + stagger * float(catch.size() - 1) + hold
-	var t := create_tween()
-	t.tween_interval(wait)
-	t.tween_callback(_fade_out)
+	_entries.clear()
+	_running = false
+	finished.emit()
 
 
 func clear() -> void:
+	_running = false
 	for e in _entries:
 		if is_instance_valid(e):
 			e.queue_free()
 	_entries.clear()
 
 
-func _slot_x(index: int, total: int) -> float:
-	return (float(index) - (float(total) - 1.0) * 0.5) * spacing
+## Pops one fish up, holds it, fades it out.
+## Awaits timers rather than tween.finished on purpose - a tween dies with its
+## node, so if clear() frees the entry mid-animation the await never resumes.
+func _present(data: FishData) -> void:
+	var style: RarityStyle = style_for(data)
 
-
-func _pop_in(entry: CatchEntry, index: int) -> void:
-	var rest_y: float = entry.position.y
+	var entry: CatchEntry = entry_scene.instantiate()
+	add_child(entry)   # runs _ready, so setup() can use its @onready vars
+	entry.setup(data, style)
+	entry.position = Vector2(0.0, rise_height)
 	entry.scale = Vector2.ZERO
-	entry.position.y = rest_y + rise_height
-	var delay: float = stagger * float(index)
-	# Bound to the entry, so a cleared entry kills its own tween.
-	var t := entry.create_tween().set_parallel(true)
-	t.tween_property(entry, "scale", Vector2.ONE, pop_time) \
-		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(delay)
-	t.tween_property(entry, "position:y", rest_y, pop_time) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT).set_delay(delay)
+	_entries.append(entry)
 
+	if style and style.sound and audio:
+		audio.stream = style.sound
+		audio.play()
 
-func _fade_out() -> void:
-	if _entries.is_empty():
-		_finish()
+	var t_in := entry.create_tween().set_parallel(true)
+	t_in.tween_property(entry, "scale", Vector2.ONE, pop_time) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	t_in.tween_property(entry, "position:y", 0.0, pop_time) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(pop_time).timeout
+	if not _running or not is_instance_valid(entry):
 		return
-	var t := create_tween().set_parallel(true)
-	for e in _entries:
-		if is_instance_valid(e):
-			t.tween_property(e, "modulate:a", 0.0, fade_time)
-	t.chain().tween_callback(_finish)
 
+	var hold: float = min_hold
+	if style:
+		hold = maxf(min_hold, style.hold_time)
+	await get_tree().create_timer(hold).timeout
+	if not _running or not is_instance_valid(entry):
+		return
 
-func _finish() -> void:
-	clear()
-	finished.emit()
+	entry.create_tween().tween_property(entry, "modulate:a", 0.0, fade_time)
+	await get_tree().create_timer(fade_time).timeout
+	if not _running:
+		return
+
+	if is_instance_valid(entry):
+		_entries.erase(entry)
+		entry.queue_free()
+
+	if gap > 0.0:
+		await get_tree().create_timer(gap).timeout

@@ -92,7 +92,7 @@ scale = Vector2(5, 5)
 sprite_frames = SubResource("SpriteFrames_bpp7x")
 animation = &"holding_catch"
 autoplay = "idle"
-frame_progress = 0.8886969
+frame_progress = 0.5037789
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1816899909]
 position = Vector2(-1, 2.5)
@@ -127,6 +127,7 @@ metadata/_custom_type_script = "uid://cee0vlobm027p"
 [node name="CatchDisplay" parent="." unique_id=330022967 instance=ExtResource("10_thffa")]
 unique_name_in_owner = true
 position = Vector2(0, -51)
+rise_height = 140.0
 
 [connection signal="hook_fired" from="FishingRod" to="." method="_on_fishing_rod_hook_fired"]
 [connection signal="hook_returned" from="FishingRod" to="StateMachine/FishingState" method="_on_fishing_rod_hook_returned"]
