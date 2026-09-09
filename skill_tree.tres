@@ -1,0 +1,197 @@
+[gd_resource type="Resource" script_class="SkillTreeResource" format=3 uid="uid://b1wsn2wd0gfwx"]
+
+[ext_resource type="Script" uid="uid://cw3d6kui7ispl" path="res://addons/skill_tree/runtime/skill_connection.gd" id="1_crnkq"]
+[ext_resource type="Script" uid="uid://dwgtm3vx4dvd3" path="res://addons/skill_tree/runtime/skill_node_data.gd" id="2_0p068"]
+[ext_resource type="Script" uid="uid://b1gt50gad2hps" path="res://addons/skill_tree/runtime/skill_lock.gd" id="2_isvel"]
+[ext_resource type="Texture2D" uid="uid://cjnlc55tp2krx" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons2.png" id="2_v1auo"]
+[ext_resource type="Script" uid="uid://cgp4jl11glcjk" path="res://addons/skill_tree/runtime/skill_tree_resource.gd" id="3_6m4g6"]
+[ext_resource type="Script" uid="uid://du1jb0jyvt4pp" path="res://addons/skill_tree/runtime/skill_cost.gd" id="4_ssocg"]
+[ext_resource type="Script" uid="uid://o4t7owpd0aio" path="res://addons/skill_tree/runtime/skill_currency.gd" id="5_yeuqa"]
+[ext_resource type="Texture2D" uid="uid://dqsyqnf07hdnb" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons1.png" id="6_ssocg"]
+[ext_resource type="Shader" uid="uid://dt11k6vy8yujy" path="res://addons/skill_tree/shaders/link_dash.gdshader" id="9_c6558"]
+[ext_resource type="Script" uid="uid://dt2fflla1jyk3" path="res://addons/skill_tree/runtime/skill_tree_style.gd" id="10_2ifso"]
+[ext_resource type="StyleBox" uid="uid://byx3e5blcxm1o" path="res://themes/clashy/panels/clashButton.tres" id="10_juytt"]
+[ext_resource type="Theme" uid="uid://c42r8558dvmyi" path="res://themes/clashy/clashy.tres" id="11_c6558"]
+[ext_resource type="StyleBox" uid="uid://cs4adpd6rj16" path="res://themes/clashy/panels/dangerClashButton.tres" id="11_msrh0"]
+[ext_resource type="StyleBox" uid="uid://t88jwvb7s6t5" path="res://themes/clashy/panels/panel_dark_embedded.tres" id="12_el0xa"]
+[ext_resource type="StyleBox" uid="uid://b3bs0xywspv6c" path="res://themes/clashy/panels/successClashButton.tres" id="13_n1p74"]
+[ext_resource type="StyleBox" uid="uid://dsq41wy5jywes" path="res://themes/clashy/panels/clashGreenButton.tres" id="14_4b5l5"]
+
+[sub_resource type="Resource" id="Resource_5theh"]
+script = ExtResource("1_crnkq")
+from_id = &"root"
+to_id = &"line_a"
+
+[sub_resource type="Resource" id="Resource_v1auo"]
+script = ExtResource("1_crnkq")
+from_id = &"root"
+to_id = &"handling"
+
+[sub_resource type="Resource" id="Resource_c6558"]
+script = ExtResource("1_crnkq")
+from_id = &"line_a"
+to_id = &"capacity"
+
+[sub_resource type="Resource" id="Resource_2ifso"]
+script = ExtResource("1_crnkq")
+from_id = &"handling"
+to_id = &"capacity"
+
+[sub_resource type="Resource" id="Resource_2rpsb"]
+script = ExtResource("2_isvel")
+id = &"caught_legendary"
+title = "Landed a legendary"
+hint = "Catch a legendary fish to open this path."
+icon = ExtResource("2_v1auo")
+
+[sub_resource type="Resource" id="Resource_elhud"]
+script = ExtResource("1_crnkq")
+from_id = &"capacity"
+to_id = &"deep"
+lock = SubResource("Resource_2rpsb")
+
+[sub_resource type="Resource" id="Resource_qnba2"]
+script = ExtResource("1_crnkq")
+from_id = &"deep"
+to_id = &"master"
+
+[sub_resource type="Resource" id="Resource_juytt"]
+script = ExtResource("1_crnkq")
+from_id = &"line_a"
+to_id = &"skill_1"
+
+[sub_resource type="Resource" id="Resource_msrh0"]
+script = ExtResource("5_yeuqa")
+id = &"skill_points"
+display_name = "SP"
+color = Color(0.6, 0.9, 1, 1)
+
+[sub_resource type="Resource" id="Resource_el0xa"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_msrh0")
+
+[sub_resource type="Resource" id="Resource_n1p74"]
+script = ExtResource("2_0p068")
+id = &"root"
+title = "Basics"
+cell = Vector2i(2, 8)
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_el0xa")])
+unlocked_from_start = true
+
+[sub_resource type="Resource" id="Resource_4b5l5"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_msrh0")
+per_rank_increase = 1
+
+[sub_resource type="Resource" id="Resource_jhlun"]
+script = ExtResource("2_0p068")
+id = &"line_a"
+title = "Longer Line"
+cell = Vector2i(1, 7)
+max_rank = 3
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_4b5l5")])
+
+[sub_resource type="Resource" id="Resource_silv4"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_msrh0")
+per_rank_increase = 1
+
+[sub_resource type="Resource" id="Resource_csivt"]
+script = ExtResource("2_0p068")
+id = &"handling"
+title = "Handling"
+cell = Vector2i(4, 6)
+max_rank = 3
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_silv4")])
+
+[sub_resource type="Resource" id="Resource_n5840"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_msrh0")
+amount = 3
+
+[sub_resource type="Resource" id="Resource_a05bn"]
+script = ExtResource("5_yeuqa")
+id = &"gold"
+display_name = "Gold"
+color = Color(1, 0.85, 0.3, 1)
+
+[sub_resource type="Resource" id="Resource_ffbtb"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_a05bn")
+amount = 250
+
+[sub_resource type="Resource" id="Resource_0veme"]
+script = ExtResource("2_0p068")
+id = &"capacity"
+title = "Bigger Haul"
+description = "HELLO"
+icon = ExtResource("6_ssocg")
+cell = Vector2i(2, 5)
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_n5840"), SubResource("Resource_ffbtb")])
+requirement = 1
+
+[sub_resource type="Resource" id="Resource_hr065"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_a05bn")
+amount = 500
+
+[sub_resource type="Resource" id="Resource_1ivb5"]
+script = ExtResource("2_0p068")
+id = &"deep"
+title = "Deep Water"
+cell = Vector2i(2, 3)
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_hr065")])
+
+[sub_resource type="Resource" id="Resource_34ey2"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_msrh0")
+amount = 5
+
+[sub_resource type="Resource" id="Resource_rv8km"]
+script = ExtResource("4_ssocg")
+currency = SubResource("Resource_a05bn")
+amount = 1000
+
+[sub_resource type="Resource" id="Resource_ofqcy"]
+script = ExtResource("2_0p068")
+id = &"master"
+title = "Master Angler"
+cell = Vector2i(2, 1)
+costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_34ey2"), SubResource("Resource_rv8km")])
+
+[sub_resource type="Resource" id="Resource_mevek"]
+script = ExtResource("2_0p068")
+id = &"skill_1"
+title = "New Skill"
+cell = Vector2i(0, 5)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i0m4r"]
+shader = ExtResource("9_c6558")
+shader_parameter/duty = 0.6
+shader_parameter/speed = 0.9
+shader_parameter/feather = 0.08
+shader_parameter/taper = 0.5
+shader_parameter/glow = Color(1, 1, 1, 1)
+shader_parameter/glow_strength = 0.0
+
+[sub_resource type="Resource" id="Resource_xneb2"]
+script = ExtResource("10_2ifso")
+node_size = Vector2(64, 64)
+icon_margin = 12.0
+node_locked = ExtResource("12_el0xa")
+node_gated = ExtResource("11_msrh0")
+node_available = ExtResource("10_juytt")
+node_purchased = ExtResource("14_4b5l5")
+node_maxed = ExtResource("13_n1p74")
+link_material = SubResource("ShaderMaterial_i0m4r")
+lock_size = Vector2(32, 32)
+ui_theme = ExtResource("11_c6558")
+metadata/_custom_type_script = "uid://dt2fflla1jyk3"
+
+[resource]
+script = ExtResource("3_6m4g6")
+grid_size = Vector2i(7, 11)
+cell_size = Vector2(88, 88)
+nodes = Array[ExtResource("2_0p068")]([SubResource("Resource_n1p74"), SubResource("Resource_jhlun"), SubResource("Resource_csivt"), SubResource("Resource_0veme"), SubResource("Resource_1ivb5"), SubResource("Resource_ofqcy"), SubResource("Resource_mevek")])
+connections = Array[ExtResource("1_crnkq")]([SubResource("Resource_5theh"), SubResource("Resource_v1auo"), SubResource("Resource_c6558"), SubResource("Resource_2ifso"), SubResource("Resource_elhud"), SubResource("Resource_qnba2"), SubResource("Resource_juytt")])
+style = SubResource("Resource_xneb2")
