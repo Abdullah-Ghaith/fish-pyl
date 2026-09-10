@@ -83,10 +83,17 @@ class_name SkillTreeStyle extends Resource
 @export var lock_clearance: float = 5.0
 
 @export_group("Tooltip")
-## Wrap width, in pixels. Load-bearing: a RichTextLabel with autowrap on
-## reports a 1px minimum width, and Godot shrinks a tooltip to its minimum
-## size - so without this the tooltip collapses to a sliver.
+## MAXIMUM width, in pixels. Short tooltips hug their text; only text longer
+## than this wraps. (The measuring is not optional decoration - a RichTextLabel
+## with autowrap on reports a 1px minimum width, and Godot shrinks a tooltip to
+## its minimum size, so an unmeasured tooltip is either a sliver or always this
+## wide.)
 @export var tooltip_width: float = 300.0
+## Blank out the background of the PopupPanel the engine wraps the tooltip in.
+## Its default is 50% black with an 8/2/8/2 gutter, which otherwise shows as a
+## grey border around whatever you set in tooltip_panel. Turn this off only if
+## you want the engine's tooltip frame back.
+@export var tooltip_hide_popup_background: bool = true
 ## Inner padding. Animated BBCode effects push glyphs outside their line box,
 ## so [wave] and [tornado] need room here or they clip.
 @export var tooltip_padding: float = 12.0

@@ -79,6 +79,50 @@ func _get_tooltip(_at_position: Vector2) -> String:
 	return tooltip_text
 
 
+## The engine wraps a custom tooltip in its own PopupPanel, and that popup has
+## a background of its own: theme type "TooltipPanel", which the default theme
+## sets to 50% black with 8/2/8/2 content margins. That grey gutter around a
+## custom panel is the popup showing through, not our own styling.
+##
+## Theme only propagates downward, so the override has to be applied to the
+## parent from inside the child. ENTER_TREE fires while the popup is already in
+## the tree but before it measures itself, so this lands in time to change the
+## popup's size as well as its colour.
+class TooltipBox extends PanelContainer:
+	var label: RichTextLabel
+	var max_width: float = 300.0
+	var strip_popup_background: bool = true
+
+	func _notification(what: int) -> void:
+		if what != NOTIFICATION_ENTER_TREE:
+			return
+		if strip_popup_background:
+			var popup := get_parent() as PopupPanel
+			if popup != null:
+				popup.add_theme_stylebox_override(&"panel", StyleBoxEmpty.new())
+		_fit_width()
+
+	## With autowrap on, RichTextLabel reports a 1px minimum width, so a wrap
+	## width set as custom_minimum_size acts as a *fixed* width - a three-line
+	## tooltip would still be 300px wide. Measure the text and only clamp when
+	## it is genuinely long enough to need wrapping.
+	func _fit_width() -> void:
+		if label == null:
+			return
+		var font: Font = label.get_theme_font(&"normal_font")
+		if font == null:
+			label.custom_minimum_size = Vector2(max_width, 0.0)
+			return
+		var fs: int = label.get_theme_font_size(&"normal_font_size")
+		var widest: float = 0.0
+		# get_parsed_text() is the text with the BBCode tags removed.
+		for line in label.get_parsed_text().split("\n"):
+			widest = maxf(widest,
+					font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x)
+		# Bold runs measure a little wider than the normal font reports.
+		label.custom_minimum_size = Vector2(minf(widest + 12.0, max_width), 0.0)
+
+
 ## A BBCode tooltip, so a skill's description can carry [rainbow], [wave],
 ## [tornado], [shake] and [pulse] around the words worth noticing. The text is
 ## built by SkillTreeView._tooltip_for().
@@ -91,10 +135,12 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	if for_text.is_empty():
 		return null
 
-	var width: float = style.tooltip_width if style != null else 300.0
 	var pad: int = int(style.tooltip_padding) if style != null else 12
 
-	var panel := PanelContainer.new()
+	var panel := TooltipBox.new()
+	panel.max_width = style.tooltip_width if style != null else 300.0
+	panel.strip_popup_background = \
+			style.tooltip_hide_popup_background if style != null else true
 	# So an animated tooltip keeps animating if the game pauses behind it.
 	panel.process_mode = Node.PROCESS_MODE_ALWAYS
 	if style != null and style.tooltip_panel != null:
@@ -112,8 +158,6 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	label.bbcode_enabled = true
 	label.fit_content = true
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	# See SkillTreeStyle.tooltip_width for why this is not optional.
-	label.custom_minimum_size = Vector2(width, 0.0)
 	# Effects that move glyphs would otherwise be cut off at the text bounds.
 	label.clip_contents = false
 	if style != null:
@@ -121,6 +165,9 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	label.text = for_text
 	margin.add_child(label)
 
+	# Width is settled in TooltipBox._fit_width(), once there is a theme to
+	# measure the font against.
+	panel.label = label
 	return panel
 
 
