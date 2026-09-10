@@ -6,10 +6,12 @@ class_name SkillTreeView extends Control
 ## SkillTreeState to make it interactive; without one it renders read-only,
 ## which is what the @tool preview uses.
 ##
-## Draw order is three layers of children, so nothing ever covers the thing it
-## should sit behind: the anchors are drawn by this Control, then a link layer,
-## then a lock layer, then one Control per node on top. The link layer is its
-## own CanvasItem so `style.link_material` lands on the links *only*.
+## Draw order is child order, so nothing ever covers the thing it should sit
+## behind: the anchors are drawn by this Control, then the link layer, then a
+## lock badge per gated connection, then one Control per node on top. The link
+## layer is its own CanvasItem so `style.link_material` lands on the links
+## *only*, and lock badges are Controls rather than draw calls so they can be
+## hovered for an explanation.
 
 signal node_activated(data: SkillNodeData)
 signal node_purchased(data: SkillNodeData, rank: int)
@@ -62,7 +64,7 @@ var state: SkillTreeState:
 var _controls: Dictionary = {}   # StringName -> SkillNodeControl
 var _fallback_style: SkillTreeStyle
 var _link_layer: Control
-var _lock_layer: Control
+var _lock_controls: Array[SkillLockControl] = []
 ## Top-left cell the layout is measured from. Vector2i.ZERO unless cropping.
 var _origin_cell: Vector2i = Vector2i.ZERO
 
@@ -89,6 +91,10 @@ func _rebuild() -> void:
 		if is_instance_valid(c):
 			c.queue_free()
 	_controls.clear()
+	for badge in _lock_controls:
+		if is_instance_valid(badge):
+			badge.queue_free()
+	_lock_controls.clear()
 	_ensure_layers()
 
 	var st: SkillTreeStyle = active_style()
@@ -109,6 +115,10 @@ func _rebuild() -> void:
 	var span: Vector2 = Vector2(used.size) * tree.cell_size if crop_to_used_cells \
 			else tree.content_size()
 	custom_minimum_size = span + st.node_size + padding * 2.0
+
+	# Lock badges before the node Controls, so they draw above the links and
+	# below the nodes - and so a node wins the click where the two overlap.
+	_build_lock_badges(st)
 
 	for n in tree.nodes:
 		if n == null:
@@ -132,13 +142,31 @@ func _rebuild() -> void:
 	refresh()
 
 
-## The link and lock layers exist only to own a draw order and a Material.
-## They are created once, before any node Control, so they stay underneath.
+## The link layer exists only to own a draw order and a Material. It is
+## created once, before any other child, so it stays underneath.
 func _ensure_layers() -> void:
 	if _link_layer == null or not is_instance_valid(_link_layer):
 		_link_layer = _make_layer(_draw_link_layer)
-	if _lock_layer == null or not is_instance_valid(_lock_layer):
-		_lock_layer = _make_layer(_draw_lock_layer)
+
+
+func _build_lock_badges(st: SkillTreeStyle) -> void:
+	var d: float = st.lock_clear_radius() * 2.0
+	for c in tree.connections:
+		if c == null or c.lock == null:
+			continue
+		var a: SkillNodeData = tree.find_node(c.from_id)
+		var b: SkillNodeData = tree.find_node(c.to_id)
+		if a == null or b == null:
+			continue
+		var badge := SkillLockControl.new()
+		badge.lock = c.lock
+		badge.style = st
+		badge.tooltip_provider = _lock_tooltip_for
+		badge.tooltip_text = _lock_tooltip_for(c.lock)
+		badge.size = Vector2(d, d)
+		badge.position = (node_center(a) + node_center(b)) * 0.5 - Vector2(d, d) * 0.5
+		add_child(badge)
+		_lock_controls.append(badge)
 
 
 func _make_layer(painter: Callable) -> Control:
@@ -190,11 +218,12 @@ func refresh() -> void:
 					state.can_afford(state.next_rank_costs(n)))
 		else:
 			ctrl.refresh(SkillTree.NodeState.AVAILABLE, 0, true)
+	for badge in _lock_controls:
+		if is_instance_valid(badge) and badge.lock != null:
+			badge.refresh(state != null and state.is_lock_open(badge.lock.id))
 	queue_redraw()
 	if _link_layer != null and is_instance_valid(_link_layer):
 		_link_layer.queue_redraw()
-	if _lock_layer != null and is_instance_valid(_lock_layer):
-		_lock_layer.queue_redraw()
 
 
 func _draw() -> void:
@@ -266,24 +295,6 @@ func _draw_link(st: SkillTreeStyle, c: SkillConnection, a: Vector2, b: Vector2,
 	st.draw_link_dashes(_link_layer, a, b, col, st.link_width, phase, mid, hole)
 
 
-# --- lock layer ---------------------------------------------------------------
-
-func _draw_lock_layer() -> void:
-	if tree == null:
-		return
-	var st: SkillTreeStyle = active_style()
-	for c in tree.connections:
-		if c == null or c.lock == null:
-			continue
-		var a: SkillNodeData = tree.find_node(c.from_id)
-		var b: SkillNodeData = tree.find_node(c.to_id)
-		if a == null or b == null:
-			continue
-		var open: bool = state != null and state.is_lock_open(c.lock.id)
-		st.draw_lock(_lock_layer, (node_center(a) + node_center(b)) * 0.5,
-				open, c.lock.icon)
-
-
 # --- interaction --------------------------------------------------------------
 
 ## BBCode, rendered by SkillNodeControl._make_custom_tooltip. A node's
@@ -319,6 +330,32 @@ func _tooltip_for(n: SkillNodeData) -> String:
 	else:
 		lines.append("[color=#%s]Cost: %s[/color]" % [
 				st.tooltip_cost_color.to_html(false), n.describe_costs(rank + 1)])
+
+	return "\n".join(lines)
+
+
+## What this gate is waiting on. Falls back to naming the achievement id when
+## the lock has no hint written yet, because "Locked" on its own is useless.
+func _lock_tooltip_for(lock: SkillLock) -> String:
+	if lock == null:
+		return ""
+	var st: SkillTreeStyle = active_style()
+	var open: bool = state != null and state.is_lock_open(lock.id)
+	var lines: PackedStringArray = []
+
+	lines.append("[b]%s[/b]" % (lock.title if lock.title != "" else "Locked path"))
+	if lock.hint != "":
+		lines.append(lock.hint)
+
+	if open:
+		lines.append("[color=#%s]Unlocked[/color]"
+				% st.tooltip_effect_color.to_html(false))
+	else:
+		lines.append("[color=#%s]Locked[/color]"
+				% st.tooltip_warn_color.to_html(false))
+		if lock.hint == "":
+			lines.append("[color=#%s]needs: %s[/color]" % [
+					st.tooltip_dim_color.to_html(false), lock.id])
 
 	return "\n".join(lines)
 
