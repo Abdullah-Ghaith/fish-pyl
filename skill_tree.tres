@@ -8,12 +8,18 @@
 [ext_resource type="Script" uid="uid://du1jb0jyvt4pp" path="res://addons/skill_tree/runtime/skill_cost.gd" id="4_ssocg"]
 [ext_resource type="Script" uid="uid://o4t7owpd0aio" path="res://addons/skill_tree/runtime/skill_currency.gd" id="5_yeuqa"]
 [ext_resource type="Texture2D" uid="uid://dqsyqnf07hdnb" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons1.png" id="6_ssocg"]
+[ext_resource type="Texture2D" uid="uid://cm6efxfm52ci5" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons7.png" id="7_silv4"]
+[ext_resource type="Texture2D" uid="uid://8vpb4yo7osj" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons3.png" id="8_csivt"]
 [ext_resource type="Shader" uid="uid://dt11k6vy8yujy" path="res://addons/skill_tree/shaders/link_dash.gdshader" id="9_c6558"]
+[ext_resource type="Texture2D" uid="uid://bhlrsnykxqsm7" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons15.png" id="9_n5840"]
 [ext_resource type="Script" uid="uid://dt2fflla1jyk3" path="res://addons/skill_tree/runtime/skill_tree_style.gd" id="10_2ifso"]
 [ext_resource type="StyleBox" uid="uid://byx3e5blcxm1o" path="res://themes/clashy/panels/clashButton.tres" id="10_juytt"]
+[ext_resource type="Texture2D" uid="uid://bfgcuablit8us" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons19.png" id="11_a05bn"]
 [ext_resource type="Theme" uid="uid://c42r8558dvmyi" path="res://themes/clashy/clashy.tres" id="11_c6558"]
 [ext_resource type="StyleBox" uid="uid://cs4adpd6rj16" path="res://themes/clashy/panels/dangerClashButton.tres" id="11_msrh0"]
 [ext_resource type="StyleBox" uid="uid://t88jwvb7s6t5" path="res://themes/clashy/panels/panel_dark_embedded.tres" id="12_el0xa"]
+[ext_resource type="Texture2D" uid="uid://cih5r7eqs0oas" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons23.png" id="12_ffbtb"]
+[ext_resource type="Texture2D" uid="uid://dtlwg2qd8rflo" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons16.png" id="13_0veme"]
 [ext_resource type="StyleBox" uid="uid://b3bs0xywspv6c" path="res://themes/clashy/panels/successClashButton.tres" id="13_n1p74"]
 [ext_resource type="StyleBox" uid="uid://dsq41wy5jywes" path="res://themes/clashy/panels/clashGreenButton.tres" id="14_4b5l5"]
 
@@ -74,7 +80,8 @@ currency = SubResource("Resource_msrh0")
 script = ExtResource("2_0p068")
 id = &"root"
 title = "Basics"
-cell = Vector2i(2, 8)
+icon = ExtResource("7_silv4")
+cell = Vector2i(2, 9)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_el0xa")])
 unlocked_from_start = true
 
@@ -87,6 +94,7 @@ per_rank_increase = 1
 script = ExtResource("2_0p068")
 id = &"line_a"
 title = "Longer Line"
+icon = ExtResource("8_csivt")
 cell = Vector2i(1, 7)
 max_rank = 3
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_4b5l5")])
@@ -100,6 +108,7 @@ per_rank_increase = 1
 script = ExtResource("2_0p068")
 id = &"handling"
 title = "Handling"
+icon = ExtResource("9_n5840")
 cell = Vector2i(4, 6)
 max_rank = 3
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_silv4")])
@@ -139,6 +148,7 @@ amount = 500
 script = ExtResource("2_0p068")
 id = &"deep"
 title = "Deep Water"
+icon = ExtResource("11_a05bn")
 cell = Vector2i(2, 3)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_hr065")])
 
@@ -156,13 +166,15 @@ amount = 1000
 script = ExtResource("2_0p068")
 id = &"master"
 title = "Master Angler"
+icon = ExtResource("12_ffbtb")
 cell = Vector2i(2, 1)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_34ey2"), SubResource("Resource_rv8km")])
 
 [sub_resource type="Resource" id="Resource_mevek"]
 script = ExtResource("2_0p068")
 id = &"skill_1"
-title = "New Skill"
+title = "Chungus"
+icon = ExtResource("13_0veme")
 cell = Vector2i(0, 5)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_i0m4r"]
@@ -183,6 +195,12 @@ node_gated = ExtResource("11_msrh0")
 node_available = ExtResource("10_juytt")
 node_purchased = ExtResource("14_4b5l5")
 node_maxed = ExtResource("13_n1p74")
+link_width = 8.0
+link_locked_color = Color(0.35, 0.4, 0.45, 0.25)
+link_gated_color = Color(0.85, 0.45, 0.1, 0.95)
+link_open_color = Color(0.25, 0.32, 0.4, 0.6)
+link_satisfied_color = Color(0.1, 0.55, 0.25, 0.95)
+link_shader_strip = true
 link_material = SubResource("ShaderMaterial_i0m4r")
 lock_size = Vector2(32, 32)
 ui_theme = ExtResource("11_c6558")
