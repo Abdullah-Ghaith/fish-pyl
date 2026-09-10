@@ -1,6 +1,9 @@
 class_name CatchDisplay extends Node2D
 ## Presents the fish a cast brought in, above the player's head - one at a time,
 ## least rare first, so the haul builds toward its best fish.
+##
+## Takes CatchRecords rather than FishData: the length and the size-adjusted
+## price are per-fish, and FishData is shared across every fish of a species.
 
 @export var entry_scene: PackedScene
 ## Indexed to match FishData.Rarity: [None, Common, Rare, Bepic, Legendary].
@@ -23,7 +26,7 @@ class_name CatchDisplay extends Node2D
 
 signal finished
 ## Fires as each fish appears - hook a counter or running cash total to it.
-signal presented(data: FishData, index: int, total: int)
+signal presented(record: CatchRecord, index: int, total: int)
 
 var _entries: Array[CatchEntry] = []
 ## False once clear() has run. show_catch is a coroutine spanning several
@@ -31,16 +34,16 @@ var _entries: Array[CatchEntry] = []
 var _running: bool = false
 
 
-func style_for(data: FishData) -> RarityStyle:
-	if data == null:
+func style_for(rec: CatchRecord) -> RarityStyle:
+	if rec == null or rec.data == null:
 		return null
-	var tier: int = int(data.rarity)
+	var tier: int = int(rec.data.rarity)
 	if tier >= 0 and tier < rarity_styles.size():
 		return rarity_styles[tier]
 	return null
 
 
-func show_catch(catch: Array[FishData]) -> void:
+func show_catch(catch: Array[CatchRecord]) -> void:
 	clear()
 	if catch.is_empty():
 		finished.emit()
@@ -49,9 +52,9 @@ func show_catch(catch: Array[FishData]) -> void:
 
 	# duplicate() first: sort_custom is in-place, and this array belongs to the
 	# player - ShowingCatchState.exit() clears it out from under us.
-	var order: Array[FishData] = catch.duplicate()
-	order.sort_custom(func(a: FishData, b: FishData) -> bool:
-		return int(a.rarity) < int(b.rarity))
+	var order: Array[CatchRecord] = catch.duplicate()
+	order.sort_custom(func(a: CatchRecord, b: CatchRecord) -> bool:
+		return int(a.data.rarity) < int(b.data.rarity))
 
 	for i in order.size():
 		presented.emit(order[i], i, order.size())
@@ -75,12 +78,12 @@ func clear() -> void:
 ## Pops one fish up, holds it, fades it out.
 ## Awaits timers rather than tween.finished on purpose - a tween dies with its
 ## node, so if clear() frees the entry mid-animation the await never resumes.
-func _present(data: FishData) -> void:
-	var style: RarityStyle = style_for(data)
+func _present(rec: CatchRecord) -> void:
+	var style: RarityStyle = style_for(rec)
 
 	var entry: CatchEntry = entry_scene.instantiate()
 	add_child(entry)   # runs _ready, so setup() can use its @onready vars
-	entry.setup(data, style)
+	entry.setup(rec, style)
 	entry.position = Vector2(0.0, rise_height)
 	entry.scale = Vector2.ZERO
 	_entries.append(entry)

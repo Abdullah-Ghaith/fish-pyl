@@ -54,7 +54,7 @@ signal entered_water(surface_y: float)
 signal started_returning
 ## Back at the rod tip, about to free itself. Carries the catch as data, because
 ## the Fish nodes are children of this hook and die with it.
-signal returned(catch: Array[FishData])
+signal returned(catch: Array[CatchRecord])
 ## One fish landed. `total` of `room` now aboard - handy for a HUD.
 signal caught_fish(fish: Fish, total: int, room: int)
 
@@ -174,11 +174,14 @@ func has_room() -> bool:
 
 ## The catch as plain data. Use this rather than the `caught` nodes for anything
 ## that outlives the hook - queue_free() takes its children with it.
-func get_catch_data() -> Array[FishData]:
-	var out: Array[FishData] = []
+##
+## The length was rolled when the fish spawned, so it is carried across rather
+## than re-rolled here: the fish the player watched swim in is the fish they get.
+func get_catch_data() -> Array[CatchRecord]:
+	var out: Array[CatchRecord] = []
 	for f in caught:
 		if is_instance_valid(f) and f.data:
-			out.append(f.data)
+			out.append(CatchRecord.of(f.data, f.length_cm))
 	return out
 
 

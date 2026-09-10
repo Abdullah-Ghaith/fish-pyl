@@ -69,17 +69,21 @@ func _spend(costs: Dictionary) -> bool:
 # --- earning -----------------------------------------------------------------
 
 ## Call once per completed cast. Pays out currency and unlocks rarity gates.
-func record_catch(catch: Array[FishData]) -> void:
+##
+## Gold comes from the record's own `value`, which already includes the size
+## bonus - so the number on the catch card and the number in the wallet cannot
+## drift apart.
+func record_catch(catch: Array[CatchRecord]) -> void:
 	if state == null:
 		return
 	var points: int = 0
 	var gold: int = 0
-	for f in catch:
-		if f == null:
+	for rec in catch:
+		if rec == null or rec.data == null:
 			continue
-		points += points_for(f.rarity)
-		gold += int(round(f.cash_value))
-		if f.rarity == FishData.Rarity.Legendary:
+		points += points_for(rec.data.rarity)
+		gold += rec.value
+		if rec.data.rarity == FishData.Rarity.Legendary:
 			unlock_achievement(&"caught_legendary")
 	if points > 0:
 		add_currency(&"skill_points", points)

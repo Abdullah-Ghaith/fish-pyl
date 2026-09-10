@@ -1,18 +1,31 @@
 [gd_scene format=3 uid="uid://bapay6vxailpv"]
 
 [ext_resource type="Script" uid="uid://45k6ccqg0tnt" path="res://Util/Classes/Fish/catch_entry.gd" id="1_ldtfj"]
+[ext_resource type="Texture2D" uid="uid://brwyj8dc6nj28" path="res://Assets/UI/kenney_pixel-ui-pack/9-Slice/Ancient/brown.png" id="2_h0o7r"]
+[ext_resource type="FontFile" uid="uid://deo7mhv7p8fdu" path="res://Assets/Fonts/zig.ttf" id="3_j6wbh"]
 
-[node name="CatchEntry" type="Node2D" unique_id=1132566242]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_j6wbh"]
+texture = ExtResource("2_h0o7r")
+
+[sub_resource type="LabelSettings" id="LabelSettings_w5ung"]
+font = ExtResource("3_j6wbh")
+font_size = 24
+outline_size = 10
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 2
+shadow_offset = Vector2(4, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_j6wbh"]
+font = ExtResource("3_j6wbh")
+font_size = 12
+outline_size = 10
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 2
+shadow_offset = Vector2(4, 1)
+
+[node name="CatchEntry" type="Node2D" unique_id=222711715]
 script = ExtResource("1_ldtfj")
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2139701261]
-
-[node name="Label" type="Label" parent="." unique_id=774754911]
-custom_minimum_size = Vector2(120, 20)
-offset_left = -60.0
-offset_top = 14.0
-offset_right = 60.0
-offset_bottom = 37.0
-horizontal_alignment = 1
-
-[node name="VfxAnchor" type="Marker2D" parent="." unique_id=1744289036]
+card_panel = SubResource("StyleBoxTexture_j6wbh")
+card_offset = Vector2(0, -16)
+title_settings = SubResource("LabelSettings_w5ung")
+detail_settings = SubResource("LabelSettings_j6wbh")

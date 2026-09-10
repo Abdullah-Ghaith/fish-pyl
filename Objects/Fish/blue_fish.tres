@@ -13,5 +13,7 @@ texture = ExtResource("2_oavg3")
 speed = 10.0
 cash_value = 10.0
 rarity = 4
+min_length_cm = 10.0
+max_length_cm = 15.0
 hitbox = SubResource("RectangleShape2D_oavg3")
 metadata/_custom_type_script = "uid://c8geieidknctv"

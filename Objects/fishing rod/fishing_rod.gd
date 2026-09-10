@@ -26,7 +26,7 @@ var projectile_gravity: float = 0.0
 var current_hook: Hook = null
 
 signal hook_fired
-signal hook_returned(catch: Array[FishData])
+signal hook_returned(catch: Array[CatchRecord])
 
 func _ready() -> void:
 	player = self.owner
@@ -103,7 +103,7 @@ func reel_in() -> void:
 
 
 ## The hook made it back to the rod tip and is about to free itself.
-func _on_hook_returned(catch: Array[FishData]) -> void:
+func _on_hook_returned(catch: Array[CatchRecord]) -> void:
 	fishing_line.detach_hook()
 	_release_camera()
 	hook_returned.emit(catch)

@@ -12,6 +12,9 @@ class_name Fish extends Area2D
 
 var data: FishData = null
 var is_caught: bool = false
+## Rolled once at spawn, not at catch time - so this fish IS this size while
+## it is swimming, and you could scale its sprite by it later.
+var length_cm: float = 0.0
 
 var _direction: float = 1.0
 var _spawn_position: Vector2 = Vector2.ZERO
@@ -25,6 +28,7 @@ var _slot_offset: Vector2 = Vector2.ZERO
 ## Call immediately after instancing, before adding to the tree.
 func setup(fish_data: FishData, direction: float, spawn_position: Vector2, despawn_x: float) -> void:
 	data = fish_data
+	length_cm = fish_data.roll_length() if fish_data != null else 0.0
 	_direction = signf(direction)
 	if _direction == 0.0:
 		_direction = 1.0

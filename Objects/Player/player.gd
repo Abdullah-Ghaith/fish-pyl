@@ -9,7 +9,7 @@ var can_right: bool = true
 var can_left: bool = true
 var can_fire: bool = false
 
-var last_catch: Array[FishData] = []
+var last_catch: Array[CatchRecord] = []
 
 func move(delta: float) -> void:
 	if not is_on_floor():
