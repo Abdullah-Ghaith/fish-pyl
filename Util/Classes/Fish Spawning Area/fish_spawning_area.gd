@@ -36,6 +36,21 @@ class_name FishSpawnArea extends Node2D
 ## Pull weight per rarity, indexed to match FishData.Rarity:
 ## [None, Common, Rare, Bepic, Legendary]. Higher = more common.
 @export var rarity_weights: PackedFloat32Array = [0.0, 100.0, 25.0, 6.0, 1.0]
+## Never spawn twice inside this many seconds, whatever the rate says. The
+## backstop against a burst.
+@export var min_spawn_gap: float = 0.35
+## Randomness on the gap between spawns, as a fraction of it. 0 = metronomic,
+## which reads as artificial; 0.4 = each gap is 60-140% of the average.
+@export_range(0.0, 0.9, 0.05) var interval_jitter: float = 0.4
+## Refuse to spawn a fish within this many pixels of one already in the band.
+## Set it to roughly a fish and a half.
+@export var min_spawn_distance: float = 90.0
+## How many depths to try before giving up on a spawn. Giving up is fine - it
+## just means the band is busy right now.
+@export_range(1, 20) var spawn_attempts: int = 6
+## Prints this band's real density numbers on startup: spawn_rate on its own
+## says nothing, what matters is speed x interval against the size of a fish.
+@export var report_density: bool = true
 ## Shifts the whole curve toward the rare end. Each tier above Common gets
 ## multiplied by luck one more time than the tier below it, so a single number
 ## makes rare fish rarer or commoner in a smooth, monotonic way.
@@ -46,7 +61,7 @@ class_name FishSpawnArea extends Node2D
 var spawn_rate_multiplier: float = 1.0
 var luck_bonus: float = 0.0
 
-var _spawn_accumulator: float = 0.0
+var _next_spawn: float = 0.0
 var _fish: Array[Fish] = []
 var _resolving: bool = false   # cycle guard for the previous_area chain
 
@@ -77,6 +92,10 @@ func _ready() -> void:
 		Progression.stats.changed.connect(_apply_upgrades)
 		_apply_upgrades()
 
+	_next_spawn = _roll_interval()
+	if report_density:
+		_report_density()
+
 
 func _apply_upgrades() -> void:
 	# Base 1.0 so both mod modes work: ADD 0.5 and MULTIPLY 1.5 both land as
@@ -95,12 +114,49 @@ func _process(delta: float) -> void:
 		if not is_instance_valid(f) or f.get_parent() != self:
 			_fish.remove_at(i)
 
-	# Accumulator rather than a Timer, so an upgrade to spawn_rate takes effect
-	# immediately and rates above one-per-frame still work.
-	_spawn_accumulator += get_spawn_rate() * delta
-	while _spawn_accumulator >= 1.0 and _fish.size() < max_fish:
-		_spawn_accumulator -= 1.0
-		_spawn_one()
+	# A countdown rather than an accumulator, and re-rolled whether or not the
+	# spawn actually happens. The old accumulator kept banking credit while the
+	# band sat at max_fish, then the whole backlog fired in one frame the moment
+	# a slot freed - every one of those fish landing on the same entry point.
+	# That was the clumping.
+	_next_spawn -= delta
+	if _next_spawn > 0.0:
+		return
+	_next_spawn = _roll_interval()
+	if _fish.size() >= max_fish:
+		return
+	_spawn_one()
+
+
+## Seconds until the next attempt: the average gap, jittered, never below
+## min_spawn_gap. Re-read every time, so a mid-game upgrade lands immediately.
+func _roll_interval() -> float:
+	var rate: float = get_spawn_rate()
+	if rate <= 0.0:
+		return 1.0
+	var gap: float = 1.0 / rate
+	return maxf(min_spawn_gap,
+			gap * randf_range(1.0 - interval_jitter, 1.0 + interval_jitter))
+
+
+## What actually decides how crowded this band looks. Spacing is speed x
+## interval - compare it to the width of a fish sprite - and the steady-state
+## population is the crossing time divided by the interval, which is what
+## max_fish has to be above or the cap does the deciding instead of the rate.
+func _report_density() -> void:
+	var rate: float = get_spawn_rate()
+	if rate <= 0.0 or spawnable_fish.is_empty():
+		return
+	var slowest: float = INF
+	for f in spawnable_fish:
+		if f != null and f.speed > 0.0:
+			slowest = minf(slowest, f.speed)
+	if is_inf(slowest):
+		return
+	var span: float = width + edge_margin * 2.0
+	var gap: float = 1.0 / rate
+	print("%s: a fish every %.1fs, ~%.0fpx apart, %.0fs to cross, ~%.1f on screen (cap %d)"
+			% [name, gap, slowest * gap, span / slowest, (span / slowest) / gap, max_fish])
 
 
 # --- band geometry -----------------------------------------------------------
@@ -174,11 +230,32 @@ func _spawn_one() -> void:
 		start_x = end_x
 		end_x = t
 
+	# Try a few depths and take the first that is not already occupied, rather
+	# than dropping a fish wherever the die lands. Giving up when none is clear
+	# is deliberate: it thins the band out exactly when it is busiest.
+	var y: float = NAN
+	for _i in spawn_attempts:
+		var candidate: float = randf_range(get_top_y(), get_bottom_y())
+		if _entry_is_clear(Vector2(start_x, candidate)):
+			y = candidate
+			break
+	if is_nan(y):
+		return
+
 	var fish: Fish = fish_scene.instantiate()
-	fish.setup(data, 1.0 if swims_right else -1.0,
-			Vector2(start_x, randf_range(get_top_y(), get_bottom_y())), end_x)
+	fish.setup(data, 1.0 if swims_right else -1.0, Vector2(start_x, y), end_x)
 	add_child(fish)
 	_fish.append(fish)
+
+
+func _entry_is_clear(at: Vector2) -> bool:
+	if min_spawn_distance <= 0.0:
+		return true
+	for f in _fish:
+		if is_instance_valid(f) and not f.is_caught \
+				and f.global_position.distance_to(at) < min_spawn_distance:
+			return false
+	return true
 
 
 # --- editor visualisation ----------------------------------------------------

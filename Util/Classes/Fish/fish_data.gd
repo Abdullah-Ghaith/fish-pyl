@@ -5,6 +5,13 @@ enum Rarity { None, Common, Rare, Bepic, Legendary }
 @export var title: StringName = ""
 @export var texture: Texture2D
 @export var speed: float = 0.0
+## Per-fish spread around `speed`, as a fraction. 0.2 = every fish swims at
+## 80-120% of it.
+##
+## Load-bearing, not decoration: with this at 0 every fish of a species moves
+## at exactly the same rate, so any two that spawn near each other stay stuck
+## together for the whole crossing. That is what makes shoals look like clumps.
+@export_range(0.0, 0.9, 0.01) var speed_variation: float = 0.2
 @export var cash_value: float = 0.0
 @export var rarity: Rarity = Rarity.None
 ## Nudges this species' odds relative to others in the same rarity tier.
@@ -25,6 +32,13 @@ enum Rarity { None, Common, Rare, Bepic, Legendary }
 @export var hitbox : Shape2D
 ## Only used for the auto-fitted rectangle
 @export var hitbox_scale: Vector2 = Vector2(0.8, 0.6)
+
+
+## This fish's own swimming speed. Rolled per fish, not per species.
+func roll_speed() -> float:
+	if is_zero_approx(speed_variation):
+		return speed
+	return speed * randf_range(1.0 - speed_variation, 1.0 + speed_variation)
 
 
 ## Triangular distribution - the average of two uniform rolls - so most fish

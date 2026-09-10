@@ -7,6 +7,9 @@ class_name Fish extends Area2D
 
 @export var bob_amplitude: float = 3.0
 @export var bob_speed: float = 1.5
+## Per-fish spread on the bob, as a fraction, so a group does not pulse in
+## lockstep even when it is swimming together.
+@export_range(0.0, 0.9, 0.01) var bob_variation: float = 0.25
 ## How quickly a caught fish settles into its slot on the hook (1/seconds).
 @export var catch_follow_speed: float = 8.0
 
@@ -15,11 +18,16 @@ var is_caught: bool = false
 ## Rolled once at spawn, not at catch time - so this fish IS this size while
 ## it is swimming, and you could scale its sprite by it later.
 var length_cm: float = 0.0
+## Rolled from FishData.speed at spawn. Read this, never data.speed - the
+## species value is the average, not this fish's.
+var swim_speed: float = 0.0
 
 var _direction: float = 1.0
 var _spawn_position: Vector2 = Vector2.ZERO
 var _despawn_x: float = 0.0
 var _bob_phase: float = 0.0
+var _bob_rate: float = 1.5
+var _bob_swing: float = 3.0
 var _home_y: float = 0.0
 var _captor: Node2D = null
 var _slot_offset: Vector2 = Vector2.ZERO
@@ -35,6 +43,11 @@ func setup(fish_data: FishData, direction: float, spawn_position: Vector2, despa
 	_spawn_position = spawn_position
 	_despawn_x = despawn_x
 	_bob_phase = randf() * TAU
+	if fish_data != null:
+		swim_speed = fish_data.roll_speed()
+	var spread: float = clampf(bob_variation, 0.0, 0.9)
+	_bob_rate = bob_speed * randf_range(1.0 - spread, 1.0 + spread)
+	_bob_swing = bob_amplitude * randf_range(1.0 - spread, 1.0 + spread)
 
 
 func _ready() -> void:
@@ -72,9 +85,9 @@ func _process(delta: float) -> void:
 
 	if not data:
 		return
-	global_position.x += data.speed * _direction * delta
-	_bob_phase += bob_speed * delta
-	global_position.y = _home_y + sin(_bob_phase) * bob_amplitude
+	global_position.x += swim_speed * _direction * delta
+	_bob_phase += _bob_rate * delta
+	global_position.y = _home_y + sin(_bob_phase) * _bob_swing
 
 	if (_direction > 0.0 and global_position.x > _despawn_x) \
 			or (_direction < 0.0 and global_position.x < _despawn_x):
