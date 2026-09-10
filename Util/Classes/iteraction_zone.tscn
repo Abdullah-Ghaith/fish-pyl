@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dnb80xs74o8py"]
+
+[ext_resource type="Script" uid="uid://ntwdkwjoo0nb" path="res://Util/Classes/interaction_zone.gd" id="1_jh0dn"]
+[ext_resource type="PackedScene" uid="uid://bn1wwlij1ua60" path="res://UI/EToInteract/e_to_interact.tscn" id="2_v61ix"]
+
+[node name="IteractionZone" type="Area2D" unique_id=1684830190]
+script = ExtResource("1_jh0dn")
+
+[node name="E-to-interact" parent="." unique_id=1363358718 instance=ExtResource("2_v61ix")]
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

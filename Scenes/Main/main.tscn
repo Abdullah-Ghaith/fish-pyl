@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://c1hqo8yp727oc" path="res://Util/Classes/Fish/fish.tscn" id="10_4e4y2"]
 [ext_resource type="Script" uid="uid://c8geieidknctv" path="res://Util/Classes/Fish/fish_data.gd" id="11_6t3k2"]
 [ext_resource type="Resource" uid="uid://byv7eakynod2k" path="res://Objects/Fish/blue_fish.tres" id="12_vk4q2"]
+[ext_resource type="Script" uid="uid://dchg34t8d4wvc" path="res://Objects/InteractionZones/skill_tree_interaction_zone.gd" id="13_6t3k2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xlvfx"]
 size = Vector2(18, 49.5)
@@ -25,6 +26,9 @@ transition = 7
 script = ExtResource("9_hfg1r")
 duration = 0.8
 transition = 7
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6t3k2"]
+size = Vector2(29, 28)
 
 [node name="Main" type="Node2D" unique_id=1542807437]
 script = ExtResource("1_lixft")
@@ -104,6 +108,15 @@ follow_damping = true
 follow_damping_value = Vector2(0.25, 0.25)
 draw_limits = true
 metadata/_custom_type_script = "uid://bhexx6mj1xv3q"
+
+[node name="InteractionZone" type="Area2D" parent="." unique_id=234332140]
+collision_layer = 0
+script = ExtResource("13_6t3k2")
+metadata/_custom_type_script = "uid://ntwdkwjoo0nb"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionZone" unique_id=848687430]
+position = Vector2(-433, -21)
+shape = SubResource("RectangleShape2D_6t3k2")
 
 [connection signal="entered_water" from="WaterBody" to="GameStateManager" method="_on_water_body_entered_water"]
 [connection signal="exited_water" from="WaterBody" to="GameStateManager" method="_on_water_body_exited_water"]

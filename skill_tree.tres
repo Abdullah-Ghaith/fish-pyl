@@ -10,6 +10,8 @@
 [ext_resource type="Texture2D" uid="uid://dqsyqnf07hdnb" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons1.png" id="6_ssocg"]
 [ext_resource type="Texture2D" uid="uid://cm6efxfm52ci5" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons7.png" id="7_silv4"]
 [ext_resource type="Texture2D" uid="uid://8vpb4yo7osj" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons3.png" id="8_csivt"]
+[ext_resource type="Script" uid="uid://b4w71hn2fhtdr" path="res://Util/Classes/Skills/skill_mod.gd" id="8_n5840"]
+[ext_resource type="Script" uid="uid://bp7spr5n8rhwr" path="res://Util/Classes/Skills/skill_upgrade.gd" id="9_a05bn"]
 [ext_resource type="Shader" uid="uid://dt11k6vy8yujy" path="res://addons/skill_tree/shaders/link_dash.gdshader" id="9_c6558"]
 [ext_resource type="Texture2D" uid="uid://bhlrsnykxqsm7" path="res://Assets/Sprites/SkillIcons/96x96/skill_icons15.png" id="9_n5840"]
 [ext_resource type="Script" uid="uid://dt2fflla1jyk3" path="res://addons/skill_tree/runtime/skill_tree_style.gd" id="10_2ifso"]
@@ -76,6 +78,18 @@ color = Color(0.6, 0.9, 1, 1)
 script = ExtResource("4_ssocg")
 currency = SubResource("Resource_msrh0")
 
+[sub_resource type="Resource" id="Resource_i0m4r"]
+script = ExtResource("8_n5840")
+stat = &"dive_time"
+value = 0.5
+metadata/_custom_type_script = "uid://b4w71hn2fhtdr"
+
+[sub_resource type="Resource" id="Resource_c438e"]
+script = ExtResource("9_a05bn")
+mods = Array[ExtResource("8_n5840")]([SubResource("Resource_i0m4r")])
+notes = "Add a bit of dive time"
+metadata/_custom_type_script = "uid://bp7spr5n8rhwr"
+
 [sub_resource type="Resource" id="Resource_n1p74"]
 script = ExtResource("2_0p068")
 id = &"root"
@@ -84,11 +98,24 @@ icon = ExtResource("7_silv4")
 cell = Vector2i(2, 9)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_el0xa")])
 unlocked_from_start = true
+payload = SubResource("Resource_c438e")
 
 [sub_resource type="Resource" id="Resource_4b5l5"]
 script = ExtResource("4_ssocg")
 currency = SubResource("Resource_msrh0")
 per_rank_increase = 1
+
+[sub_resource type="Resource" id="Resource_nxnjd"]
+script = ExtResource("8_n5840")
+stat = &"dive_time"
+value = 1.0
+metadata/_custom_type_script = "uid://b4w71hn2fhtdr"
+
+[sub_resource type="Resource" id="Resource_r887f"]
+script = ExtResource("9_a05bn")
+mods = Array[ExtResource("8_n5840")]([SubResource("Resource_nxnjd")])
+notes = "Even more long line"
+metadata/_custom_type_script = "uid://bp7spr5n8rhwr"
 
 [sub_resource type="Resource" id="Resource_jhlun"]
 script = ExtResource("2_0p068")
@@ -98,20 +125,33 @@ icon = ExtResource("8_csivt")
 cell = Vector2i(1, 7)
 max_rank = 3
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_4b5l5")])
+payload = SubResource("Resource_r887f")
 
 [sub_resource type="Resource" id="Resource_silv4"]
 script = ExtResource("4_ssocg")
 currency = SubResource("Resource_msrh0")
 per_rank_increase = 1
 
+[sub_resource type="Resource" id="Resource_lknfl"]
+script = ExtResource("8_n5840")
+stat = &"handling"
+value = 0.35
+metadata/_custom_type_script = "uid://b4w71hn2fhtdr"
+
+[sub_resource type="Resource" id="Resource_1k88q"]
+script = ExtResource("9_a05bn")
+mods = Array[ExtResource("8_n5840")]([SubResource("Resource_lknfl")])
+metadata/_custom_type_script = "uid://bp7spr5n8rhwr"
+
 [sub_resource type="Resource" id="Resource_csivt"]
 script = ExtResource("2_0p068")
 id = &"handling"
 title = "Handling"
 icon = ExtResource("9_n5840")
-cell = Vector2i(4, 6)
+cell = Vector2i(4, 7)
 max_rank = 3
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_silv4")])
+payload = SubResource("Resource_1k88q")
 
 [sub_resource type="Resource" id="Resource_n5840"]
 script = ExtResource("4_ssocg")
@@ -129,6 +169,17 @@ script = ExtResource("4_ssocg")
 currency = SubResource("Resource_a05bn")
 amount = 250
 
+[sub_resource type="Resource" id="Resource_wfprb"]
+script = ExtResource("8_n5840")
+stat = &"catch_capacity"
+value = 1.0
+metadata/_custom_type_script = "uid://b4w71hn2fhtdr"
+
+[sub_resource type="Resource" id="Resource_fk4mr"]
+script = ExtResource("9_a05bn")
+mods = Array[ExtResource("8_n5840")]([SubResource("Resource_wfprb")])
+metadata/_custom_type_script = "uid://bp7spr5n8rhwr"
+
 [sub_resource type="Resource" id="Resource_0veme"]
 script = ExtResource("2_0p068")
 id = &"capacity"
@@ -138,11 +189,23 @@ icon = ExtResource("6_ssocg")
 cell = Vector2i(2, 5)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_n5840"), SubResource("Resource_ffbtb")])
 requirement = 1
+payload = SubResource("Resource_fk4mr")
 
 [sub_resource type="Resource" id="Resource_hr065"]
 script = ExtResource("4_ssocg")
 currency = SubResource("Resource_a05bn")
 amount = 500
+
+[sub_resource type="Resource" id="Resource_lo53o"]
+script = ExtResource("8_n5840")
+stat = &"luck"
+value = 0.35
+metadata/_custom_type_script = "uid://b4w71hn2fhtdr"
+
+[sub_resource type="Resource" id="Resource_qwwsc"]
+script = ExtResource("9_a05bn")
+mods = Array[ExtResource("8_n5840")]([SubResource("Resource_lo53o")])
+metadata/_custom_type_script = "uid://bp7spr5n8rhwr"
 
 [sub_resource type="Resource" id="Resource_1ivb5"]
 script = ExtResource("2_0p068")
@@ -151,6 +214,7 @@ title = "Deep Water"
 icon = ExtResource("11_a05bn")
 cell = Vector2i(2, 3)
 costs = Array[ExtResource("4_ssocg")]([SubResource("Resource_hr065")])
+payload = SubResource("Resource_qwwsc")
 
 [sub_resource type="Resource" id="Resource_34ey2"]
 script = ExtResource("4_ssocg")
