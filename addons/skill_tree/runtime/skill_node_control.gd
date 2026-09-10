@@ -11,6 +11,10 @@ var node_state: SkillTree.NodeState = SkillTree.NodeState.LOCKED
 var affordable: bool = true
 var rank: int = 0
 
+## func(data: SkillNodeData) -> String, set by SkillTreeView. Called on every
+## hover so the tooltip is always current.
+var tooltip_provider: Callable = Callable()
+
 var _hovered: bool = false
 
 
@@ -64,6 +68,60 @@ func _draw_rank_pips() -> void:
 		var filled: bool = i < rank
 		draw_circle(Vector2(start_x + float(i) * gap, y), r,
 				style.rank_pip_filled if filled else style.rank_pip_empty)
+
+
+## Built fresh each hover instead of read from a cached `tooltip_text`.
+## Returning non-empty here also stops Godot walking up the parent chain
+## looking for a tooltip owner.
+func _get_tooltip(_at_position: Vector2) -> String:
+	if tooltip_provider.is_valid() and data != null:
+		return str(tooltip_provider.call(data))
+	return tooltip_text
+
+
+## A BBCode tooltip, so a skill's description can carry [rainbow], [wave],
+## [tornado], [shake] and [pulse] around the words worth noticing. The text is
+## built by SkillTreeView._tooltip_for().
+##
+## Godot frees the returned node when the tooltip closes, so this always
+## returns a fresh one - never a cached instance.
+func _make_custom_tooltip(for_text: String) -> Object:
+	# Called even when tooltip_text is empty. Returning null is how you say
+	# "then show nothing", which is what empty should mean.
+	if for_text.is_empty():
+		return null
+
+	var width: float = style.tooltip_width if style != null else 300.0
+	var pad: int = int(style.tooltip_padding) if style != null else 12
+
+	var panel := PanelContainer.new()
+	# So an animated tooltip keeps animating if the game pauses behind it.
+	panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	if style != null and style.tooltip_panel != null:
+		panel.add_theme_stylebox_override(&"panel", style.tooltip_panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override(&"margin_left", pad)
+	margin.add_theme_constant_override(&"margin_right", pad)
+	margin.add_theme_constant_override(&"margin_top", pad)
+	margin.add_theme_constant_override(&"margin_bottom", pad)
+	panel.add_child(margin)
+
+	var label := RichTextLabel.new()
+	# bbcode_enabled must be set before `text`, or the tags are shown literally.
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# See SkillTreeStyle.tooltip_width for why this is not optional.
+	label.custom_minimum_size = Vector2(width, 0.0)
+	# Effects that move glyphs would otherwise be cut off at the text bounds.
+	label.clip_contents = false
+	if style != null:
+		label.add_theme_color_override(&"default_color", style.tooltip_text_color)
+	label.text = for_text
+	margin.add_child(label)
+
+	return panel
 
 
 func _gui_input(event: InputEvent) -> void:

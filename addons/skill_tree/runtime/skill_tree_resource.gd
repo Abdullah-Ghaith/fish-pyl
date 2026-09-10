@@ -29,6 +29,28 @@ func content_size() -> Vector2:
 	return Vector2(maxi(grid_size.x - 1, 0), maxi(grid_size.y - 1, 0)) * cell_size
 
 
+## Bounding box of the cells that actually hold nodes, so a tree authored in
+## one corner of a big grid can be laid out without its empty margin. Zero
+## position and size when there are no nodes.
+func used_cell_rect() -> Rect2i:
+	var found: bool = false
+	var lo := Vector2i.ZERO
+	var hi := Vector2i.ZERO
+	for n in nodes:
+		if n == null:
+			continue
+		if not found:
+			lo = n.cell
+			hi = n.cell
+			found = true
+			continue
+		lo = Vector2i(mini(lo.x, n.cell.x), mini(lo.y, n.cell.y))
+		hi = Vector2i(maxi(hi.x, n.cell.x), maxi(hi.y, n.cell.y))
+	if not found:
+		return Rect2i(Vector2i.ZERO, Vector2i.ZERO)
+	return Rect2i(lo, hi - lo)
+
+
 func find_node(node_id: StringName) -> SkillNodeData:
 	for n in nodes:
 		if n != null and n.id == node_id:

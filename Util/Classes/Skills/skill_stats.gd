@@ -58,7 +58,12 @@ func describe() -> String:
 		var mul: float = multiplier(stat)
 		if is_zero_approx(add) and is_equal_approx(mul, 1.0):
 			continue
-		lines.append("%s: %+.4g x%.4g" % [stat, add, mul])
+		var parts: PackedStringArray = []
+		if not is_zero_approx(add):
+			parts.append(SkillMod.fmt_signed(add))
+		if not is_equal_approx(mul, 1.0):
+			parts.append("x%s" % SkillMod.fmt(mul))
+		lines.append("%s %s" % [stat, " ".join(parts)])
 	return "\n".join(lines)
 
 

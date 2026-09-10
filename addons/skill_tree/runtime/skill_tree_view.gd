@@ -31,6 +31,15 @@ signal purchase_rejected(data: SkillNodeData, reason: String)
 		_rebuild()
 ## Clicking an available node buys it. Turn off for a read-only display.
 @export var purchase_on_click: bool = true
+## Lay out only the part of the grid that holds nodes, dropping empty rows and
+## columns around them. A tree authored in one corner of a big grid then sizes
+## to what it contains, which is what lets a CenterContainer actually centre
+## it. The editor canvas always shows the whole grid - you need the empty
+## anchors there to place nodes on.
+@export var crop_to_used_cells: bool = true:
+	set(v):
+		crop_to_used_cells = v
+		_rebuild()
 
 var state: SkillTreeState:
 	set(v):
@@ -54,6 +63,8 @@ var _controls: Dictionary = {}   # StringName -> SkillNodeControl
 var _fallback_style: SkillTreeStyle
 var _link_layer: Control
 var _lock_layer: Control
+## Top-left cell the layout is measured from. Vector2i.ZERO unless cropping.
+var _origin_cell: Vector2i = Vector2i.ZERO
 
 
 func _ready() -> void:
@@ -93,7 +104,11 @@ func _rebuild() -> void:
 		queue_redraw()
 		return
 
-	custom_minimum_size = tree.content_size() + st.node_size + padding * 2.0
+	var used: Rect2i = tree.used_cell_rect()
+	_origin_cell = used.position if crop_to_used_cells else Vector2i.ZERO
+	var span: Vector2 = Vector2(used.size) * tree.cell_size if crop_to_used_cells \
+			else tree.content_size()
+	custom_minimum_size = span + st.node_size + padding * 2.0
 
 	for n in tree.nodes:
 		if n == null:
@@ -103,6 +118,10 @@ func _rebuild() -> void:
 		ctrl.style = st
 		ctrl.size = st.node_size
 		ctrl.position = node_origin(n)
+		# Recomputed on every hover rather than cached, so cost, affordability
+		# and rank are never stale - the wallet can change without the tree's
+		# state emitting anything.
+		ctrl.tooltip_provider = _tooltip_for
 		ctrl.tooltip_text = _tooltip_for(n)
 		if st.node_material != null:
 			ctrl.material = st.node_material
@@ -145,7 +164,7 @@ func _process(_delta: float) -> void:
 ## Where a grid anchor sits in this Control's coordinates. Nodes are centred
 ## on their anchor, which is why padding must be at least half a node.
 func anchor_position(cell: Vector2i) -> Vector2:
-	return padding + tree.cell_to_position(cell)
+	return padding + tree.cell_to_position(cell - _origin_cell)
 
 
 func node_center(n: SkillNodeData) -> Vector2:
@@ -169,7 +188,6 @@ func refresh() -> void:
 		if state != null:
 			ctrl.refresh(state.state_of(n), state.rank_of(n.id),
 					state.can_afford(state.next_rank_costs(n)))
-			ctrl.tooltip_text = _tooltip_for(n)
 		else:
 			ctrl.refresh(SkillTree.NodeState.AVAILABLE, 0, true)
 	queue_redraw()
@@ -188,8 +206,14 @@ func _draw() -> void:
 
 
 func _draw_anchors(st: SkillTreeStyle) -> void:
-	for x in tree.grid_size.x:
-		for y in tree.grid_size.y:
+	var from := Vector2i.ZERO
+	var to: Vector2i = tree.grid_size
+	if crop_to_used_cells:
+		var used: Rect2i = tree.used_cell_rect()
+		from = used.position
+		to = used.position + used.size + Vector2i.ONE
+	for x in range(from.x, to.x):
+		for y in range(from.y, to.y):
 			var p: Vector2 = anchor_position(Vector2i(x, y))
 			if st.anchor_texture != null:
 				var s: Vector2 = st.anchor_texture.get_size()
@@ -262,18 +286,40 @@ func _draw_lock_layer() -> void:
 
 # --- interaction --------------------------------------------------------------
 
+## BBCode, rendered by SkillNodeControl._make_custom_tooltip. A node's
+## `description` is passed through verbatim, so authors can put [rainbow],
+## [wave], [tornado] and friends around keywords.
 func _tooltip_for(n: SkillNodeData) -> String:
-	var lines: PackedStringArray = [n.label()]
+	var st: SkillTreeStyle = active_style()
+	var rank: int = state.rank_of(n.id) if state != null else 0
+	var lines: PackedStringArray = []
+
+	var head: String = "[b]%s[/b]" % n.label()
+	if n.max_rank > 1:
+		head += "   [color=#%s]rank %d / %d[/color]" % [
+				st.tooltip_dim_color.to_html(false), rank, n.max_rank]
+	lines.append(head)
+
 	if n.description != "":
 		lines.append(n.description)
-	if state != null:
-		if n.max_rank > 1:
-			lines.append("Rank %d / %d" % [state.rank_of(n.id), n.max_rank])
-		var reason: String = state.blocked_reason(n)
-		lines.append(reason if reason != "" else "Cost: %s"
-				% n.describe_costs(state.rank_of(n.id) + 1))
+
+	# The addon never interprets `payload` - but if a payload can describe
+	# itself, the tooltip says what the skill actually does. That one method
+	# name is the entire contract; no payload type is imported here.
+	if n.payload != null and n.payload.has_method(&"describe"):
+		var effect: String = str(n.payload.call(&"describe"))
+		if effect != "":
+			lines.append("[color=#%s]%s[/color]" % [
+					st.tooltip_effect_color.to_html(false), effect])
+
+	var reason: String = state.blocked_reason(n) if state != null else ""
+	if reason != "":
+		lines.append("[color=#%s]%s[/color]" % [
+				st.tooltip_warn_color.to_html(false), reason])
 	else:
-		lines.append("Cost: %s" % n.describe_costs(1))
+		lines.append("[color=#%s]Cost: %s[/color]" % [
+				st.tooltip_cost_color.to_html(false), n.describe_costs(rank + 1)])
+
 	return "\n".join(lines)
 
 

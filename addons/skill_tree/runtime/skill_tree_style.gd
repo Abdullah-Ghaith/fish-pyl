@@ -7,7 +7,7 @@ class_name SkillTreeStyle extends Resource
 ##
 ## It also owns the link and lock *drawing*, so the editor canvas and the
 ## runtime view cannot drift apart: what you author is what ships.
- 
+
 @export_group("Anchors")
 ## The guide dots. Editor-only by default - they are scaffolding, not art.
 @export var show_anchors_in_game: bool = false
@@ -16,7 +16,7 @@ class_name SkillTreeStyle extends Resource
 @export var anchor_color: Color = Color(1, 1, 1, 0.18)
 ## Drawn instead of the circle when set, centred on the anchor.
 @export var anchor_texture: Texture2D
- 
+
 @export_group("Nodes")
 @export var node_size: Vector2 = Vector2(52, 52)
 ## Inset between the node's edge and its icon.
@@ -37,7 +37,7 @@ class_name SkillTreeStyle extends Resource
 @export var rank_pip_radius: float = 2.5
 @export var rank_pip_filled: Color = Color(1, 1, 1, 0.9)
 @export var rank_pip_empty: Color = Color(1, 1, 1, 0.25)
- 
+
 @export_group("Links")
 @export var link_width: float = 4.0
 @export var link_locked_color: Color = Color(1, 1, 1, 0.12)
@@ -47,7 +47,7 @@ class_name SkillTreeStyle extends Resource
 ## Drawn behind the link at a wider size, for an outline or bloom.
 @export var link_outline_width: float = 0.0
 @export var link_outline_color: Color = Color(0, 0, 0, 0.5)
- 
+
 @export_subgroup("Dashes")
 ## One dash and the gap after it. Links are drawn as a run of dashes marching
 ## from the prerequisite to the node it unlocks - that is what shows direction,
@@ -68,7 +68,7 @@ class_name SkillTreeStyle extends Resource
 @export var link_shader_strip: bool = false
 ## Shader for the link layer, e.g. an energy flow along satisfied paths.
 @export var link_material: Material
- 
+
 @export_group("Lock Badge")
 @export var lock_closed_icon: Texture2D
 @export var lock_open_icon: Texture2D
@@ -81,16 +81,36 @@ class_name SkillTreeStyle extends Resource
 @export var lock_ring_width: float = 2.5
 ## Extra space cleared around the badge, on top of its own radius.
 @export var lock_clearance: float = 5.0
- 
+
+@export_group("Tooltip")
+## Wrap width, in pixels. Load-bearing: a RichTextLabel with autowrap on
+## reports a 1px minimum width, and Godot shrinks a tooltip to its minimum
+## size - so without this the tooltip collapses to a sliver.
+@export var tooltip_width: float = 300.0
+## Inner padding. Animated BBCode effects push glyphs outside their line box,
+## so [wave] and [tornado] need room here or they clip.
+@export var tooltip_padding: float = 12.0
+## Leave empty to inherit the theme's PanelContainer look.
+@export var tooltip_panel: StyleBox
+## Base text colour, overriding whatever the theme's RichTextLabel would use.
+## BBCode [color=...] inside a description still wins over this.
+@export var tooltip_text_color: Color = Color(0.92, 0.94, 1.0)
+## The rank counter next to the title.
+@export var tooltip_dim_color: Color = Color(0.65, 0.70, 0.78)
+## The auto-generated "what this skill does" line.
+@export var tooltip_effect_color: Color = Color(0.5, 0.95, 0.7)
+@export var tooltip_cost_color: Color = Color(1.0, 0.82, 0.35)
+@export var tooltip_warn_color: Color = Color(1.0, 0.55, 0.45)
+
 @export_group("UI")
 ## Applied to SkillTreeView, so its labels and tooltips inherit your project's
 ## look without the addon knowing anything about it.
 @export var ui_theme: Theme
- 
- 
+
+
 var _placeholders: Dictionary = {}
- 
- 
+
+
 ## StyleBox for a node state, generating a placeholder if none was assigned.
 func box_for(state: SkillTree.NodeState) -> StyleBox:
 	var assigned: StyleBox = null
@@ -105,8 +125,8 @@ func box_for(state: SkillTree.NodeState) -> StyleBox:
 	if not _placeholders.has(state):
 		_placeholders[state] = _placeholder_box(state)
 	return _placeholders[state]
- 
- 
+
+
 func link_color(satisfied: bool, gated: bool, reachable: bool) -> Color:
 	if satisfied:
 		return link_satisfied_color
@@ -115,33 +135,33 @@ func link_color(satisfied: bool, gated: bool, reachable: bool) -> Color:
 	if reachable:
 		return link_open_color
 	return link_locked_color
- 
- 
+
+
 # --- link drawing -------------------------------------------------------------
- 
+
 ## One dash plus its gap. Never zero, so callers can divide by it.
 func dash_period() -> float:
 	return maxf(1.0, link_dash_length + link_dash_gap)
- 
- 
+
+
 ## Radius of clear space a lock badge wants around itself.
 func lock_clear_radius() -> float:
 	return lock_disc_radius() + lock_clearance
- 
- 
+
+
 ## Radius of the badge's backdrop disc.
 func lock_disc_radius() -> float:
 	return maxf(lock_size.x, lock_size.y) * 0.62
- 
- 
+
+
 ## Distance from a rect's centre to its edge along `dir`. Links are trimmed by
 ## this so they stop at the node border instead of running under the node.
 func rect_exit(dir: Vector2, half: Vector2) -> float:
 	var tx: float = INF if is_zero_approx(dir.x) else half.x / absf(dir.x)
 	var ty: float = INF if is_zero_approx(dir.y) else half.y / absf(dir.y)
 	return minf(tx, ty)
- 
- 
+
+
 ## One link, as a run of tapered dashes between two node borders.
 ##
 ## `phase` scrolls the pattern in pixels toward the target. `hole_at` /
@@ -160,20 +180,20 @@ func draw_link_dashes(ci: CanvasItem, a: Vector2, b: Vector2, col: Color,
 	if run <= 0.0:
 		return
 	var origin: Vector2 = a + dir * inset
- 
+
 	if run < link_dash_length * 0.75:
 		# Neighbouring cells: no room to dash, so draw one stub instead of a
 		# single lonely dash that reads as a rendering glitch.
 		ci.draw_line(origin, origin + dir * run, col, width, true)
 		return
- 
+
 	var hole_lo: float = -1.0
 	var hole_hi: float = -1.0
 	if hole_radius > 0.0:
 		var centre: float = (hole_at - origin).dot(dir)
 		hole_lo = centre - hole_radius
 		hole_hi = centre + hole_radius
- 
+
 	var period: float = dash_period()
 	var taper: float = clampf(link_dash_taper, 0.0, 0.95)
 	# Anchored to the target end, so the leading dash always lands on the node
@@ -190,8 +210,8 @@ func draw_link_dashes(ci: CanvasItem, a: Vector2, b: Vector2, col: Color,
 		var t: float = ((d0 + d1) * 0.5) / run
 		ci.draw_line(origin + dir * d0, origin + dir * d1, col,
 				width * lerpf(1.0 - taper, 1.0, t), true)
- 
- 
+
+
 ## One link as a single quad with arc-length UVs, so `link_material`'s shader
 ## owns the whole look. UV.x counts dash periods from the prerequisite; UV.y
 ## goes 0..1 across the width.
@@ -213,8 +233,8 @@ func draw_link_strip(ci: CanvasItem, a: Vector2, b: Vector2, col: Color,
 	ci.draw_colored_polygon(
 			PackedVector2Array([p0 + n, p1 + n, p1 - n, p0 - n]), col,
 			PackedVector2Array([Vector2(0, 0), Vector2(u, 0), Vector2(u, 1), Vector2(0, 1)]))
- 
- 
+
+
 ## The gate badge. Deliberately loud - a dark disc, a bright ring and a chunky
 ## padlock - because a gate nobody notices is a gate that reads as a bug.
 ## `scale` lets the editor canvas keep it a constant size while zooming.
@@ -223,20 +243,20 @@ func draw_lock(ci: CanvasItem, at: Vector2, open: bool,
 	var s: Vector2 = lock_size * scale
 	var col: Color = lock_open_color if open else lock_closed_color
 	var r: float = lock_disc_radius() * scale
- 
+
 	if lock_backdrop_color.a > 0.0:
 		ci.draw_circle(at, r, lock_backdrop_color)
 	if lock_ring_width > 0.0:
 		ci.draw_arc(at, r, 0.0, TAU, 32, Color(col, col.a * 0.95),
 				lock_ring_width * scale, true)
- 
+
 	var tex: Texture2D = icon
 	if tex == null:
 		tex = lock_open_icon if open else lock_closed_icon
 	if tex != null:
 		ci.draw_texture_rect(tex, Rect2(at - s * 0.5, s), false, col)
 		return
- 
+
 	# No art yet: a bold padlock, drawn dark-first so it keeps its shape even
 	# on top of a bright ring or a satisfied link.
 	var body := Rect2(at.x - s.x * 0.30, at.y - s.y * 0.04, s.x * 0.60, s.y * 0.38)
@@ -245,7 +265,7 @@ func draw_lock(ci: CanvasItem, at: Vector2, open: bool,
 	var arc_from: float = PI * (1.18 if open else 1.0)
 	var thick: float = maxf(2.0, s.x * 0.13)
 	var shadow := Color(0.02, 0.02, 0.03, 0.7)
- 
+
 	ci.draw_rect(body.grow(1.5), shadow)
 	ci.draw_arc(shackle_c, shackle_r, arc_from, arc_from + PI * 0.85, 20,
 			shadow, thick + 3.0, true)
@@ -255,8 +275,8 @@ func draw_lock(ci: CanvasItem, at: Vector2, open: bool,
 	# Keyhole, so it reads as a padlock and not a mailbox.
 	ci.draw_circle(body.get_center(), maxf(1.5, s.x * 0.075),
 			Color(0.06, 0.06, 0.08, 0.95))
- 
- 
+
+
 func _placeholder_box(state: SkillTree.NodeState) -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()
 	box.set_corner_radius_all(4)
