@@ -1,16 +1,20 @@
 [gd_resource type="Resource" script_class="RarityStyle" format=3 uid="uid://b20t4eqojfhgv"]
 
 [ext_resource type="Script" uid="uid://dfb6fljp3du7r" path="res://Util/Classes/Fish/rarity_style.gd" id="1_qoli1"]
+[ext_resource type="Texture2D" uid="uid://xumj1e5ystg2" path="res://Assets/UI/kenney_pixel-ui-pack/9-Slice/Ancient/tan.png" id="1_s3mxi"]
 [ext_resource type="PackedScene" uid="uid://11kp0gond8ex" path="res://VFX/Catch Particles/bepic_catch_particles.tscn" id="1_w1m7o"]
+[ext_resource type="LabelSettings" uid="uid://b4uvinskfqgtq" path="res://Objects/Fish/Rarity/fish_label_settings.tres" id="2_wrpub"]
 [ext_resource type="AudioStream" uid="uid://tpqsjp8omexx" path="res://Assets/Audio/Sax jingles/jingles_SAX10.ogg" id="3_s3mxi"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_wrpub"]
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wrpub"]
+texture = ExtResource("1_s3mxi")
 
 [resource]
 script = ExtResource("1_qoli1")
 particles = ExtResource("1_w1m7o")
-label_settings = SubResource("LabelSettings_wrpub")
+label_settings = ExtResource("2_wrpub")
 sound = ExtResource("3_s3mxi")
+display_name = "Epic"
+accent = Color(0.3977192, 0.43474266, 0.9579206, 1)
+card_panel = SubResource("StyleBoxTexture_wrpub")
 metadata/_custom_type_script = "uid://dfb6fljp3du7r"

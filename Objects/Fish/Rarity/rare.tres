@@ -1,16 +1,13 @@
 [gd_resource type="Resource" script_class="RarityStyle" format=3 uid="uid://kwvgwi0ny8v3"]
 
+[ext_resource type="LabelSettings" uid="uid://b4uvinskfqgtq" path="res://Objects/Fish/Rarity/fish_label_settings.tres" id="1_6surm"]
 [ext_resource type="PackedScene" uid="uid://hprx6kvug46y" path="res://VFX/Catch Particles/rare_catch_particle.tscn" id="1_np1yg"]
 [ext_resource type="Script" uid="uid://dfb6fljp3du7r" path="res://Util/Classes/Fish/rarity_style.gd" id="1_yu0wj"]
 [ext_resource type="AudioStream" uid="uid://54hpl5t1rgnx" path="res://Assets/Audio/Sax jingles/jingles_SAX06.ogg" id="3_6surm"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_hpf2q"]
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
-
 [resource]
 script = ExtResource("1_yu0wj")
 particles = ExtResource("1_np1yg")
-label_settings = SubResource("LabelSettings_hpf2q")
+label_settings = ExtResource("1_6surm")
 sound = ExtResource("3_6surm")
 metadata/_custom_type_script = "uid://dfb6fljp3du7r"

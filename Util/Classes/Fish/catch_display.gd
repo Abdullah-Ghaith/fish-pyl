@@ -93,13 +93,19 @@ func _present(rec: CatchRecord) -> void:
 		audio.play()
 
 	var t_in := entry.create_tween().set_parallel(true)
-	t_in.tween_property(entry, "scale", Vector2.ONE, pop_time) \
+	# To the entry's own target, not to 1.0 - that is what lets RarityStyle
+	# make a legendary card bigger than a common one.
+	t_in.tween_property(entry, "scale", entry.target_scale, pop_time) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	t_in.tween_property(entry, "position:y", 0.0, pop_time) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(pop_time).timeout
 	if not _running or not is_instance_valid(entry):
 		return
+
+	# The card has landed - now burst. Emitting any earlier trails particles
+	# up from wherever the card was during the pop tween.
+	entry.play_vfx()
 
 	var hold: float = min_hold
 	if style:

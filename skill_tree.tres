@@ -271,6 +271,7 @@ link_shader_strip = true
 link_material = SubResource("ShaderMaterial_i0m4r")
 lock_size = Vector2(32, 32)
 tooltip_width = null
+tooltip_hide_popup_background = null
 tooltip_padding = null
 tooltip_panel = ExtResource("24_a05bn")
 tooltip_text_color = null

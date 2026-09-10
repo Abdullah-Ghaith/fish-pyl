@@ -17,7 +17,6 @@ shadow_offset = Vector2(4, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_j6wbh"]
 font = ExtResource("3_j6wbh")
-font_size = 12
 outline_size = 10
 outline_color = Color(0, 0, 0, 1)
 shadow_size = 2
@@ -26,6 +25,7 @@ shadow_offset = Vector2(4, 1)
 [node name="CatchEntry" type="Node2D" unique_id=222711715]
 script = ExtResource("1_ldtfj")
 card_panel = SubResource("StyleBoxTexture_j6wbh")
-card_offset = Vector2(0, -16)
+padding = 12
+card_offset = Vector2(0, -64)
 title_settings = SubResource("LabelSettings_w5ung")
 detail_settings = SubResource("LabelSettings_j6wbh")

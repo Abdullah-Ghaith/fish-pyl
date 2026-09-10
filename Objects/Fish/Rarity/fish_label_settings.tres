@@ -1,0 +1,8 @@
+[gd_resource type="LabelSettings" format=3 uid="uid://b4uvinskfqgtq"]
+
+[ext_resource type="FontFile" uid="uid://deo7mhv7p8fdu" path="res://Assets/Fonts/zig.ttf" id="1_7bv1s"]
+
+[resource]
+font = ExtResource("1_7bv1s")
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
