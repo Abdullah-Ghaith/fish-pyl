@@ -4,5 +4,10 @@ class_name eToInteract extends Node2D
 
 
 func reveal() -> void:
-	self.show()
+	show()
 	animation_player.play("pulse")
+
+
+func conceal() -> void:
+	animation_player.stop()
+	hide()
