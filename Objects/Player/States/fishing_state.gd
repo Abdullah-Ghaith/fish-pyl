@@ -23,6 +23,7 @@ func physics_update(_delta: float):
 
 func _on_fishing_rod_hook_returned(catch: Array[FishData]) -> void:
 	player.last_catch = catch
+	Progression.record_catch(catch)
 	if catch.is_empty():
 		transitioned.emit(self, "AimingFishingRodState")
 	else:

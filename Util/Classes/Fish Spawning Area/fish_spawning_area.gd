@@ -70,6 +70,20 @@ func _ready() -> void:
 		else:
 			f.validate(name)
 
+	# Skill upgrades feed the two runtime hooks above. get_spawn_rate() and
+	# get_luck() read them live, so re-applying on change is the whole story -
+	# a skill bought mid-cast affects the very next spawn.
+	if Progression.stats != null:
+		Progression.stats.changed.connect(_apply_upgrades)
+		_apply_upgrades()
+
+
+func _apply_upgrades() -> void:
+	# Base 1.0 so both mod modes work: ADD 0.5 and MULTIPLY 1.5 both land as
+	# "half again as many fish".
+	spawn_rate_multiplier = Progression.stat(SkillStats.SPAWN_RATE, 1.0)
+	luck_bonus = Progression.stats.bonus(SkillStats.LUCK)
+
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():

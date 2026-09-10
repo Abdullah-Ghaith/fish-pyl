@@ -67,8 +67,14 @@ func shoot() -> void:
 	get_tree().current_scene.add_child(hook)
 	hook.global_position = $ShootPos.global_position
 	hook.rod_tip = $ShootPos   # where the hook reels itself back to
-	hook.capacity = self.catch_capacity
 	current_hook = hook
+
+	# Skill upgrades are applied here, once per cast, using the hook scene's own
+	# exported values as the base - so the numbers live in one place (the
+	# inspector) and the tree only ever describes the delta.
+	hook.capacity = Progression.stat_int(SkillStats.CATCH_CAPACITY, catch_capacity)
+	hook.handling = Progression.stat(SkillStats.HANDLING, hook.handling)
+	hook.dive_time = Progression.stat(SkillStats.DIVE_TIME, hook.dive_time)
 
 	# The line now runs rod tip -> hook and pays out as the hook flies.
 	hook.entered_water.connect(fishing_line._on_hook_entered_water)
