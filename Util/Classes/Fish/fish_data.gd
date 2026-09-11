@@ -28,10 +28,40 @@ enum Rarity { None, Common, Rare, Bepic, Legendary }
 ## of cash_value. 0.5 = a record fish sells for 50% more.
 @export var length_value_bonus: float = 0.5
 
+@export_group("Time of Day")
+## Pull weight at each phase of the day, relative to this species' own normal.
+## 1.0 everywhere - the default - means the clock never affects this fish.
+##
+## These multiply the rarity weight, they don't replace it: a Rare fish at
+## night_weight 3.0 is three times as likely as it would be at noon, still
+## against every other fish in the band. 0.0 means it does not bite then at all.
+##
+## The spawner eases between phases rather than switching at the boundary, so a
+## night fish fades in across the evening. The values are what you get at the
+## middle of each phase.
+@export_range(0.0, 8.0, 0.05, "or_greater") var dawn_weight: float = 1.0
+@export_range(0.0, 8.0, 0.05, "or_greater") var day_weight: float = 1.0
+@export_range(0.0, 8.0, 0.05, "or_greater") var dusk_weight: float = 1.0
+@export_range(0.0, 8.0, 0.05, "or_greater") var night_weight: float = 1.0
+
 @export_group("HitBox")
 @export var hitbox : Shape2D
 ## Only used for the auto-fitted rectangle
 @export var hitbox_scale: Vector2 = Vector2(0.8, 0.6)
+
+
+## The four time-of-day weights, in TimeOfDay.Phase order, ready to hand to
+## TimeOfDay.blend(). Ordering lives here so the spawner never has to know it.
+func phase_weights() -> PackedFloat32Array:
+	return PackedFloat32Array([dawn_weight, day_weight, dusk_weight, night_weight])
+
+
+## True when this species ignores the clock - all four weights equal. Lets the
+## spawner skip the blend for the fish that don't care.
+func is_time_agnostic() -> bool:
+	return is_equal_approx(dawn_weight, day_weight) \
+			and is_equal_approx(dawn_weight, dusk_weight) \
+			and is_equal_approx(dawn_weight, night_weight)
 
 
 ## This fish's own swimming speed. Rolled per fish, not per species.
@@ -89,5 +119,12 @@ func validate(context: String) -> bool:
 	# one silently disables the size line, which is worth saying out loud.
 	if max_length_cm > 0.0 and min_length_cm > max_length_cm:
 		printerr("%s: %s has min_length_cm above max_length_cm" % [context, label])
+		ok = false
+	# All four at zero is a fish that can never spawn at any hour - almost
+	# certainly a half-finished edit rather than an intent.
+	if is_zero_approx(dawn_weight) and is_zero_approx(day_weight) \
+			and is_zero_approx(dusk_weight) and is_zero_approx(night_weight):
+		printerr("%s: %s has every time-of-day weight at 0, so it never spawns"
+				% [context, label])
 		ok = false
 	return ok

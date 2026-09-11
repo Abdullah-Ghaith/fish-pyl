@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 PhantomCameraManager="*uid://duq6jhf6unyis"
 SceneManager="*uid://j20v4cg7v8m1"
 Progression="*uid://b25mvf2nurswb"
+TimeOfDay="*res://Util/Managers/time_of_day.gd"
 
 [display]
 

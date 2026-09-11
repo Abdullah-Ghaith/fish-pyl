@@ -14,6 +14,7 @@
 [ext_resource type="Resource" uid="uid://byv7eakynod2k" path="res://Objects/Fish/blue_fish.tres" id="12_vk4q2"]
 [ext_resource type="PackedScene" uid="uid://dnb80xs74o8py" path="res://Util/Classes/interaction_zone.tscn" id="13_6t3k2"]
 [ext_resource type="Script" uid="uid://c76kuv765oege" path="res://Objects/InteractionZones/skill_tree_1_interaction_zone.gd" id="14_vk4q2"]
+[ext_resource type="Script" path="res://Objects/Environment/DayNight/day_night_cycle.gd" id="15_dncyc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xlvfx"]
 size = Vector2(18, 49.5)
@@ -72,6 +73,9 @@ tile_map_data = PackedByteArray("AAD9/wAAAAAEAAIAAAD+/wAAAAAEAAIAAAD8/wAAAAAEAAI
 position = Vector2(2, 40)
 distance_between_springs = 8.0
 num_springs = 140
+
+[node name="DayNightCycle" type="CanvasModulate" parent="." unique_id=1903774512]
+script = ExtResource("15_dncyc")
 
 [node name="Player" parent="." unique_id=1812962135 instance=ExtResource("3_5yls4")]
 unique_name_in_owner = true

@@ -56,6 +56,9 @@ class_name FishSpawnArea extends Node2D
 ## makes rare fish rarer or commoner in a smooth, monotonic way.
 ## 1.0 = the weights above verbatim.
 @export var luck: float = 1.0
+## Ignore the clock in this band - every fish keeps its noon odds all night.
+## For a cave, an aquarium, or anywhere the sun does not reach.
+@export var ignore_time_of_day: bool = false
 
 ## Runtime upgrade hooks - set these from your upgrade system, not the inspector.
 var spawn_rate_multiplier: float = 1.0
@@ -64,6 +67,10 @@ var luck_bonus: float = 0.0
 var _next_spawn: float = 0.0
 var _fish: Array[Fish] = []
 var _resolving: bool = false   # cycle guard for the previous_area chain
+## The TimeOfDay autoload, looked up once. Null is a supported state: without
+## the autoload the band falls back to its plain rarity weights, so the game
+## still runs if the cycle is not installed.
+var _clock: Node = null
 
 
 func _ready() -> void:
@@ -77,6 +84,9 @@ func _ready() -> void:
 		printerr("%s: FishSpawnArea failed to set fish_scene" % name)
 	if spawnable_fish.is_empty():
 		printerr("%s: FishSpawnArea has no spawnable_fish" % name)
+
+	if not ignore_time_of_day:
+		_clock = get_node_or_null(^"/root/TimeOfDay")
 
 	# Validate the species list once here rather than per-instance at spawn time.
 	for f in spawnable_fish:
@@ -189,15 +199,31 @@ func get_luck() -> float:
 	return maxf(0.01, luck + luck_bonus)
 
 
+## This species' time-of-day multiplier right now. 1.0 whenever the clock is
+## missing or the band opts out, so this is always safe to multiply in.
+func get_time_weight(fish: FishData) -> float:
+	if fish == null or _clock == null:
+		return 1.0
+	# A species with four identical weights is constant across the day, but the
+	# constant still counts - blending it would give the same answer the long
+	# way round, so take it directly.
+	if fish.is_time_agnostic():
+		return fish.dawn_weight
+	return _clock.blend(fish.phase_weights())
+
+
 ## Pull weight for one species. Rarity tier sets the base; luck raises each tier
-## above Common by one more power of luck than the tier below it.
+## above Common by one more power of luck than the tier below it, and the clock
+## scales the result - which is why a night fish competes against the same
+## rarity curve rather than sitting outside it.
 func get_weight(fish: FishData) -> float:
 	if fish == null:
 		return 0.0
 	var tier: int = int(fish.rarity)
 	if tier <= 0 or tier >= rarity_weights.size():
 		return 0.0
-	return rarity_weights[tier] * pow(get_luck(), tier - 1) * fish.weight_multiplier
+	return rarity_weights[tier] * pow(get_luck(), tier - 1) \
+			* fish.weight_multiplier * get_time_weight(fish)
 
 
 func pick_fish() -> FishData:
