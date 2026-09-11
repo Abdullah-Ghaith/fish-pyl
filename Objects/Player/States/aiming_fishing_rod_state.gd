@@ -17,7 +17,8 @@ func enter():
 	player.can_fire = true
 
 func exit():
-	pass
+	# An armed meter must not survive into the next state.
+	fishing_rod.cancel_cast()
 
 func physics_update(_delta: float):
 	player.move(_delta)

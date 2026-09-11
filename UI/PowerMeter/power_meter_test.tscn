@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://rw00aysqmgy4"]
+
+[ext_resource type="Script" uid="uid://84w6bbg27qfu" path="res://UI/PowerMeter/power_meter_test.gd" id="1_d8q1f"]
+[ext_resource type="PackedScene" uid="uid://1oii8wxnymui" path="res://UI/PowerMeter/PowerMeter.tscn" id="2_l6cpw"]
+
+[node name="PowerMeterTest" type="Node2D" unique_id=2028762987 node_paths=PackedStringArray("meter")]
+position = Vector2(890, 571)
+script = ExtResource("1_d8q1f")
+meter = NodePath("PowerMeter")
+
+[node name="PowerMeter" parent="." unique_id=1398810706 instance=ExtResource("2_l6cpw")]

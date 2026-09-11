@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c6tvmplr252lx" path="res://Objects/Hook/hook.gd" id="1_8clvq"]
 [ext_resource type="Texture2D" uid="uid://cbo6xn5ktr1xj" path="res://Assets/Sprites/Hook.png" id="2_8clvq"]
+[ext_resource type="Script" uid="uid://c860loirrhae0" path="res://Objects/Hook/hook_sprite.gd" id="3_uydi8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8clvq"]
 size = Vector2(5, 8)
@@ -20,8 +21,13 @@ catch_slot_stagger = 4.0
 reel_speed = 640.0
 return_ramp = 20.0
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=211465012]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=793038971]
 texture = ExtResource("2_8clvq")
+script = ExtResource("3_uydi8")
+amplitude_y = 0.3
+frequency_x = 6.0
+frequency_y = 6.0
+metadata/_custom_type_script = "uid://c860loirrhae0"
 
 [node name="HookCollisionShape" type="CollisionShape2D" parent="." unique_id=1426422230]
 position = Vector2(0.5, 0)

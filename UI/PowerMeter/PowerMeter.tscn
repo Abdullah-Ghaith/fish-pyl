@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://1oii8wxnymui"]
+
+[ext_resource type="Script" uid="uid://b6pbge2tmkx2y" path="res://UI/PowerMeter/power_meter.gd" id="1_uqjsb"]
+[ext_resource type="Texture2D" uid="uid://j28wkm28homq" path="res://Assets/Sprites/PowerMeter.png" id="2_kh4fr"]
+[ext_resource type="Texture2D" uid="uid://cy82oywpdfoy0" path="res://Assets/Sprites/PowerMeterBar.png" id="3_b8mn1"]
+
+[node name="PowerMeter" type="Node2D" unique_id=1398810706 node_paths=PackedStringArray("tracker", "track_start", "track_end", "sweet_start", "sweet_end")]
+script = ExtResource("1_uqjsb")
+tracker = NodePath("PowerMeterBar")
+track_start = NodePath("TrackStart")
+track_end = NodePath("TrackEnd")
+sweet_start = NodePath("SweetStart")
+sweet_end = NodePath("SweetEnd")
+
+[node name="PowerMeterSprite" type="Sprite2D" parent="." unique_id=1224567142]
+texture = ExtResource("2_kh4fr")
+
+[node name="PowerMeterBar" type="Sprite2D" parent="." unique_id=1743700597]
+texture = ExtResource("3_b8mn1")
+
+[node name="TrackStart" type="Marker2D" parent="." unique_id=418405329]
+position = Vector2(-56, 0)
+
+[node name="TrackEnd" type="Marker2D" parent="." unique_id=460771942]
+position = Vector2(56, 0)
+
+[node name="SweetStart" type="Marker2D" parent="." unique_id=1472527940]
+position = Vector2(-4, 0)
+
+[node name="SweetEnd" type="Marker2D" parent="." unique_id=1057954492]
+position = Vector2(4, 0)

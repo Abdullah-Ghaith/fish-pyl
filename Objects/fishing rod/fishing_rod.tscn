@@ -5,6 +5,7 @@
 [ext_resource type="Shader" uid="uid://j2fqmvhjgfn5" path="res://Objects/fishing rod/s_moving_trajectory.gdshader" id="4_g40wn"]
 [ext_resource type="PackedScene" uid="uid://c1cc3tjanep5n" path="res://Objects/FishingLine/fishing_line.tscn" id="5_aie3p"]
 [ext_resource type="Texture2D" uid="uid://crqfetgfypgbs" path="res://Assets/Sprites/FishingRod-Sheet.png" id="5_kqb2w"]
+[ext_resource type="PackedScene" uid="uid://1oii8wxnymui" path="res://UI/PowerMeter/PowerMeter.tscn" id="6_vg0iy"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_aie3p"]
 shader = ExtResource("4_g40wn")
@@ -79,9 +80,12 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="FishingRod" type="Node2D" unique_id=1144399455]
+[node name="FishingRod" type="Node2D" unique_id=1144399455 node_paths=PackedStringArray("power_meter")]
 script = ExtResource("1_mvxqb")
 catch_capacity = 2
+power_meter = NodePath("PowerMeter")
+max_cast_speed = 450.0
+dive_bonus_max = 0.5
 
 [node name="ShootPos" type="Marker2D" parent="." unique_id=430676763]
 position = Vector2(19, -9)
@@ -90,6 +94,7 @@ position = Vector2(19, -9)
 material = SubResource("ShaderMaterial_aie3p")
 position = Vector2(7, -6)
 points = PackedVector2Array(37, 1)
+visible_steps = 12
 
 [node name="FishingLine" parent="." unique_id=1047603809 node_paths=PackedStringArray("rod_tip") instance=ExtResource("5_aie3p")]
 rod_tip = NodePath("../ShootPos")
@@ -99,4 +104,8 @@ scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_vrhbb")
 animation = &"Idle"
 autoplay = "Idle"
-frame_progress = 0.7244638
+frame = 2
+frame_progress = 0.9837199
+
+[node name="PowerMeter" parent="." unique_id=1398810706 instance=ExtResource("6_vg0iy")]
+position = Vector2(0, -101)

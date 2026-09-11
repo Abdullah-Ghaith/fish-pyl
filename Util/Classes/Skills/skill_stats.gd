@@ -12,8 +12,13 @@ const HANDLING := &"handling"                ## Hook: steering coefficient.
 const CATCH_CAPACITY := &"catch_capacity"    ## Rod: fish carried per cast.
 const SPAWN_RATE := &"spawn_rate"            ## Spawn areas: fish per second.
 const LUCK := &"luck"                        ## Spawn areas: shift toward rare.
+const CAST_POWER := &"cast_power"            ## Rod: maximum cast speed.
+const CAST_VISION := &"cast_vision"          ## Rod: length of the visible arc.
+const CAST_TIMING := &"cast_timing"          ## Meter: >1 slows the sweep.
+const DIVE_BONUS := &"dive_bonus"            ## Rod: dive seconds a perfect hit adds.
 
-const KNOWN := [DIVE_TIME, HANDLING, CATCH_CAPACITY, SPAWN_RATE, LUCK]
+const KNOWN := [DIVE_TIME, HANDLING, CATCH_CAPACITY, SPAWN_RATE, LUCK,
+		CAST_POWER, CAST_VISION, CAST_TIMING, DIVE_BONUS]
 
 var tree: SkillTreeResource
 var state: SkillTreeState

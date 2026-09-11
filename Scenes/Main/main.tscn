@@ -47,11 +47,6 @@ edge_margin = 20.0
 spawn_rate = 0.5
 max_fish = 4
 rarity_weights = PackedFloat32Array(0, 100, 25, 6, 1)
-min_spawn_gap = null
-interval_jitter = null
-min_spawn_distance = null
-spawn_attempts = null
-report_density = null
 metadata/_custom_type_script = "uid://wl1yp562pgnc"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=326397405]

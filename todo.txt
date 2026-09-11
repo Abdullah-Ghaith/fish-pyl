@@ -14,3 +14,8 @@ make the water get darker as the sun sets
 -> add an upgrade to make the bands brighter
 add UI to show how long the hook still has left
 add UI to show catch capacity
+
+
+Next:
+	add upgradeable bands
+	rework shooting the hook so you dont see the whole line + its not infinite (cap strength)
